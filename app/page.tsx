@@ -5,26 +5,34 @@ import { useAgent } from "./hooks/useAgent";
 import ReactMarkdown from "react-markdown";
 
 /**
- * Home page for the AgentKit Quickstart
- *
- * @returns {React.ReactNode} The home page
+ * Terminal Interface for AgentKit
  */
 export default function Home() {
   const [input, setInput] = useState("");
   const { messages, sendMessage, isThinking } = useAgent();
 
-  // Ref for the messages container
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Function to scroll to the bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Auto-scroll whenever messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Focus input on click
+  useEffect(() => {
+    const handleClick = () => {
+      // Only focus if user isn't selecting text
+      if (window.getSelection()?.toString() === "") {
+        inputRef.current?.focus();
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
   const onSendMessage = async () => {
     if (!input.trim() || isThinking) return;
@@ -34,69 +42,89 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col flex-grow items-center justify-center text-black dark:text-white w-full h-full">
-      <div className="w-full max-w-2xl h-[70vh] bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 flex flex-col">
-        {/* Chat Messages */}
-        <div className="flex-grow overflow-y-auto space-y-3 p-2">
-          {messages.length === 0 ? (
-            <p className="text-center text-gray-500">Start chatting with AgentKit...</p>
-          ) : (
-            messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`p-3 rounded-2xl shadow ${
-                  msg.sender === "user"
-                    ? "bg-[#0052FF] text-white self-end"
-                    : "bg-gray-100 dark:bg-gray-700 self-start"
-                }`}
-              >
+    <div className="flex flex-col flex-grow w-full h-full overflow-hidden">
+      {/* Terminal Output */}
+      <div className="flex-grow overflow-y-auto p-4 scrollbar-custom space-y-2 font-mono text-sm md:text-base pb-2">
+        {/* Welcome Message */}
+        <div className="text-green-700/80 mb-6 font-mono text-xs md:text-sm">
+          <p>Coinbase AgentKit Terminal [Version 1.0.0]</p>
+          <p>(c) 2024 Onchain Corp. All rights reserved.</p>
+          <br />
+          <p className="text-gray-500">System initialized. Connected to network.</p>
+        </div>
+
+        {messages.map((msg, index) => (
+          <div key={index} className="flex flex-col mb-4">
+            {msg.sender === "user" ? (
+              <div className="flex items-start group">
+                <span className="text-green-500 mr-3 shrink-0 select-none font-bold">
+                  user@onchain:~$
+                </span>
+                <span className="text-gray-100 break-words font-medium">{msg.text}</span>
+              </div>
+            ) : (
+              <div className="mt-2 text-green-400 leading-relaxed pl-0 md:pl-4">
                 <ReactMarkdown
                   components={{
-                    a: props => (
+                    a: (props) => (
                       <a
                         {...props}
-                        className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                        className="text-blue-400 hover:text-blue-300 underline decoration-blue-500/30 break-all"
                         target="_blank"
                         rel="noopener noreferrer"
                       />
+                    ),
+                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                    code: ({ children }) => (
+                      <code className="bg-green-900/20 text-green-300 px-1 py-0.5 rounded text-xs md:text-sm font-bold border border-green-900/30">{children}</code>
+                    ),
+                    pre: ({ children }) => (
+                      <pre className="bg-black/50 border border-green-800/40 p-3 rounded-sm my-3 overflow-x-auto text-xs md:text-sm scrollbar-custom shadow-[0_0_10px_rgba(0,0,0,0.3)]">{children}</pre>
+                    ),
+                    ul: ({ children }) => <ul className="list-disc ml-5 mb-2 marker:text-green-600">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal ml-5 mb-2 marker:text-green-600">{children}</ol>,
+                    strong: ({ children }) => <strong className="text-green-300 font-bold">{children}</strong>,
+                    blockquote: ({ children }) => (
+                      <blockquote className="border-l-2 border-green-800/60 pl-4 italic text-green-600/80 my-2">{children}</blockquote>
                     ),
                   }}
                 >
                   {msg.text}
                 </ReactMarkdown>
               </div>
-            ))
-          )}
+            )}
+          </div>
+        ))}
 
-          {/* Thinking Indicator */}
-          {isThinking && <div className="text-right mr-2 text-gray-500 italic">🤖 Thinking...</div>}
+        {isThinking && (
+          <div className="flex items-center text-green-500 animate-pulse mt-2">
+            <span className="w-2.5 h-4 bg-green-500 block mr-2"></span>
+            <span className="text-xs uppercase tracking-wider opacity-70">Processing...</span>
+          </div>
+        )}
 
-          {/* Invisible div to track the bottom */}
-          <div ref={messagesEndRef} />
-        </div>
+        <div ref={messagesEndRef} />
+      </div>
 
-        {/* Input Box */}
-        <div className="flex items-center space-x-2 mt-2">
+      {/* Input Line */}
+      <div className="p-3 md:p-4 bg-black/95 shrink-0 z-20 border-t border-green-900/20 backdrop-blur">
+        <div className="flex items-center text-green-500 font-mono text-sm md:text-base">
+          <span className="mr-3 shrink-0 font-bold hidden sm:block">user@onchain:~$</span>
+          <span className="mr-2 shrink-0 font-bold sm:hidden">{">"}</span>
           <input
+            ref={inputRef}
             type="text"
-            className="flex-grow p-2 rounded border dark:bg-gray-700 dark:border-gray-600"
-            placeholder={"Type a message..."}
+            className="flex-grow bg-transparent border-none outline-none text-white font-mono caret-green-500 placeholder-green-900/30"
             value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && onSendMessage()}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onSendMessage();
+            }}
+            autoFocus
             disabled={isThinking}
+            autoComplete="off"
+            spellCheck="false"
           />
-          <button
-            onClick={onSendMessage}
-            className={`px-6 py-2 rounded-full font-semibold transition-all ${
-              isThinking
-                ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                : "bg-[#0052FF] hover:bg-[#003ECF] text-white shadow-md"
-            }`}
-            disabled={isThinking}
-          >
-            Send
-          </button>
         </div>
       </div>
     </div>
