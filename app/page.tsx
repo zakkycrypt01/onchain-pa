@@ -13,6 +13,29 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
   const { messages, sendMessage, isThinking, clearMessages } = useAgent();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showDemo, setShowDemo] = useState(true);
+  const [demoTypedChars, setDemoTypedChars] = useState(0);
+  const [demoResponseLines, setDemoResponseLines] = useState(0);
+  const [demoPhase, setDemoPhase] = useState(0); // 0: asking capabilities, 1: showing transaction
+
+  const demoPhase0Prompt = "what can the agent do?";
+  const demoPhase0Response = [
+    "• Send/receive crypto (ETH, USDC, etc.)",
+    "• Check wallet balances",
+    "• Swap tokens on DEX",
+    "• Deploy smart contracts",
+    "• Manage NFTs",
+    "• Execute batch transactions"
+  ];
+
+  const demoPhase1Prompt = "send 1 USDC to 0x742d35Cc6634C0532925a3b844Bc9e7595f42bE";
+  const demoPhase1Response = [
+    "Processing transaction...",
+    "✓ Approved USDC spend",
+    "✓ Transaction submitted",
+    "✓ Hash: 0x3a2b1c...",
+    "Transfer complete!"
+  ];
 
   const scrollToBottom = () => {
     if (isActive) {
@@ -23,6 +46,71 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isActive]);
+
+  // Phase 0: Typing animation for "what can the agent do?"
+  useEffect(() => {
+    if (showDemo && isActive && demoPhase === 0 && demoTypedChars < demoPhase0Prompt.length) {
+      const timer = setTimeout(() => {
+        setDemoTypedChars(prev => prev + 1);
+      }, 30);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, isActive, demoPhase, demoTypedChars]);
+
+  // Phase 0: Response capabilities (line by line)
+  useEffect(() => {
+    if (showDemo && isActive && demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && demoResponseLines < demoPhase0Response.length) {
+      const timer = setTimeout(() => {
+        setDemoResponseLines(prev => prev + 1);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
+
+  // Transition to Phase 1 after Phase 0 completes
+  useEffect(() => {
+    if (showDemo && isActive && demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && demoResponseLines === demoPhase0Response.length) {
+      const timer = setTimeout(() => {
+        setDemoPhase(1);
+        setDemoTypedChars(0);
+        setDemoResponseLines(0);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
+
+  // Phase 1: Typing animation for transaction
+  useEffect(() => {
+    if (showDemo && isActive && demoPhase === 1 && demoTypedChars < demoPhase1Prompt.length) {
+      const timer = setTimeout(() => {
+        setDemoTypedChars(prev => prev + 1);
+      }, 30);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, isActive, demoPhase, demoTypedChars]);
+
+  // Phase 1: Response appearing (line by line)
+  useEffect(() => {
+    if (showDemo && isActive && demoPhase === 1 && demoTypedChars === demoPhase1Prompt.length && demoResponseLines < demoPhase1Response.length) {
+      const timer = setTimeout(() => {
+        setDemoResponseLines(prev => prev + 1);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
+
+  // Auto-clear demo after Phase 1 completes
+  useEffect(() => {
+    if (showDemo && isActive && demoPhase === 1 && demoTypedChars === demoPhase1Prompt.length && demoResponseLines === demoPhase1Response.length) {
+      const timer = setTimeout(() => {
+        setShowDemo(false);
+        setDemoPhase(0);
+        setDemoTypedChars(0);
+        setDemoResponseLines(0);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
 
   useEffect(() => {
     if (isActive) {
@@ -69,6 +157,60 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
           <br />
           <p className="text-gray-500">System initialized. Connected to network.</p>
         </div>
+
+        {showDemo && (
+          <>
+            {/* Phase 0: Asking what the agent can do */}
+            {(demoPhase === 0 || demoPhase === 1) && (
+              <>
+                <div className="flex items-start group mb-2">
+                  <span className="text-green-500 mr-1 shrink-0 select-none font-bold">user@agentkit:</span>
+                  <span className="text-blue-500 mr-2 shrink-0 select-none font-bold">~</span>
+                  <span className="text-white mr-2 shrink-0 select-none font-bold">$</span>
+                  <span className="text-gray-100 font-medium">{demoPhase0Prompt.slice(0, demoPhase === 0 ? demoTypedChars : demoPhase0Prompt.length)}</span>
+                  {demoPhase === 0 && demoTypedChars < demoPhase0Prompt.length && <span className="text-green-500 animate-blink">_</span>}
+                </div>
+
+                {demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && (
+                  <div className="text-green-400 leading-relaxed pl-0 mb-6 whitespace-pre-wrap text-sm space-y-1">
+                    {demoPhase0Response.map((line, idx) => (
+                      idx < demoResponseLines && <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+
+                {demoPhase === 1 && (
+                  <div className="text-green-400 leading-relaxed pl-0 mb-6 whitespace-pre-wrap text-sm space-y-1">
+                    {demoPhase0Response.map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Phase 1: Transaction demo */}
+            {demoPhase === 1 && (
+              <>
+                <div className="flex items-start group mb-2 mt-4">
+                  <span className="text-green-500 mr-1 shrink-0 select-none font-bold">user@agentkit:</span>
+                  <span className="text-blue-500 mr-2 shrink-0 select-none font-bold">~</span>
+                  <span className="text-white mr-2 shrink-0 select-none font-bold">$</span>
+                  <span className="text-gray-100 font-medium">{demoPhase1Prompt.slice(0, demoTypedChars)}</span>
+                  {demoTypedChars < demoPhase1Prompt.length && <span className="text-green-500 animate-blink">_</span>}
+                </div>
+
+                {demoTypedChars === demoPhase1Prompt.length && (
+                  <div className="text-green-400 leading-relaxed pl-0 mb-6 whitespace-pre-wrap text-sm space-y-1">
+                    {demoPhase1Response.map((line, idx) => (
+                      idx < demoResponseLines && <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
 
         {messages.map((msg, index) => (
           <div key={index} className="flex flex-col">
@@ -119,6 +261,13 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
           <div className="flex items-center text-green-500 animate-pulse mt-2">
             <span className="w-2.5 h-4 bg-green-500 block mr-2"></span>
             <span className="text-xs uppercase tracking-wider opacity-70">Processing...</span>
+          </div>
+        )}
+
+        {/* Ready for input prompt */}
+        {!isThinking && !showDemo && (
+          <div className="text-green-600 text-xs mb-3 opacity-70">
+            Ready for input. Type your command below:
           </div>
         )}
 
