@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAgent } from "./hooks/useAgent";
 import ReactMarkdown from "react-markdown";
+import FloatingCharacters from "./components/FloatingCharacters";
 
 /**
  * Single Terminal Session Component
@@ -59,9 +60,9 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
   };
 
   return (
-    <div className={`flex flex-col flex-grow w-full h-full overflow-hidden ${isActive ? "flex" : "hidden"}`}>
+    <div className={`flex flex-col grow w-full h-full overflow-hidden ${isActive ? "flex" : "hidden"}`}>
       {/* Terminal Output */}
-      <div className="flex-grow overflow-y-auto p-4 scrollbar-custom font-mono text-sm md:text-base pb-2">
+      <div className="grow overflow-y-auto p-4 scrollbar-custom font-mono text-sm md:text-base pb-2">
         <div className="text-green-700/80 mb-6 font-mono text-xs md:text-sm">
           <p>Coinbase AgentKit Terminal [Version 1.0.0]</p>
           <p>(c) 2024 Onchain Corp. All rights reserved.</p>
@@ -78,7 +79,7 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
                 </span>
                 <span className="text-blue-500 mr-2 shrink-0 select-none font-bold">~</span>
                 <span className="text-white mr-2 shrink-0 select-none font-bold">$</span>
-                <span className="text-gray-100 break-words font-medium">{msg.text}</span>
+                <span className="text-gray-100 wrap-break-word font-medium">{msg.text}</span>
               </div>
             ) : (
               <div className="text-green-400 leading-relaxed pl-0 mb-4 whitespace-pre-wrap">
@@ -132,7 +133,7 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
           <input
             ref={inputRef}
             type="text"
-            className="flex-grow bg-transparent border-none outline-none text-white font-mono caret-green-500"
+            className="grow bg-transparent border-none outline-none text-white font-mono caret-green-500"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -182,11 +183,14 @@ export default function Home() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-0 md:p-4 bg-[#0a0a0a]">
-       <div className="flex flex-col w-full max-w-5xl h-full md:h-[90vh] border border-green-800/50 bg-black shadow-[0_0_30px_rgba(0,255,0,0.05)] relative overflow-hidden rounded-lg">
-            
+    <div className="fixed inset-0 flex items-center justify-center p-0 md:p-4 bg-[#0a0a0a] overflow-hidden">
+       {/* Floating Characters Background - fills entire viewport */}
+       <FloatingCharacters characters="01" density={600} minSize={11} maxSize={14} />
+       
+       <div className="flex flex-col w-full max-w-5xl h-full md:h-[90vh] border border-green-800/50 bg-black shadow-[0_0_30px_rgba(0,255,0,0.05)] relative overflow-hidden rounded-lg z-20">
+
         {/* CRT Scanline Overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-50 bg-[length:100%_2px,3px_100%] opacity-20 md:rounded-lg"></div>
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-50 bg-size-[100%_2px,3px_100%] opacity-20 md:rounded-lg"></div>
         <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.9)] z-40 md:rounded-lg"></div>
 
         {/* Header with Tabs */}
@@ -204,13 +208,13 @@ export default function Home() {
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
               className={`
-                group relative px-4 py-1.5 rounded-t-lg bg-black border border-b-0 text-xs md:text-sm font-mono cursor-pointer flex items-center gap-2 select-none min-w-[120px] max-w-[200px] transition-all
+                group relative px-4 py-1.5 rounded-t-lg bg-black border border-b-0 text-xs md:text-sm font-mono cursor-pointer flex items-center gap-2 select-none min-w-30 max-w-50 transition-all
                 ${activeTabId === tab.id 
                   ? "border-green-800/50 text-green-400 z-10" 
                   : "border-transparent bg-transparent text-green-700/50 hover:bg-green-900/10 hover:text-green-600"}
               `}
             >
-              <span className="truncate flex-grow">
+              <span className="truncate grow">
                 {activeTabId === tab.id ? "user@agentkit:~" : tab.name}
               </span>
               
@@ -229,7 +233,7 @@ export default function Home() {
               
               {/* Active Tab Indicator Line */}
               {activeTabId === tab.id && (
-                <div className="absolute -bottom-[1px] left-0 right-0 h-[1px] bg-black z-20"></div>
+                <div className="absolute -bottom-px left-0 right-0 h-px bg-black z-20"></div>
               )}
             </div>
           ))}
@@ -245,7 +249,7 @@ export default function Home() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-grow flex flex-col relative z-20 overflow-hidden bg-black/90">
+        <main className="grow flex flex-col relative z-20 overflow-hidden bg-black/90">
              {tabs.map(tab => (
                <TerminalSession key={tab.id} isActive={activeTabId === tab.id} />
              ))}
