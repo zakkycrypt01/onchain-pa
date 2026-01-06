@@ -9,7 +9,7 @@ import ReactMarkdown from "react-markdown";
  */
 function TerminalSession({ isActive }: { isActive: boolean }) {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, isThinking } = useAgent();
+  const { messages, sendMessage, isThinking, clearMessages } = useAgent();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -25,18 +25,22 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     if (isActive) {
+      const focusInput = () => {
+        inputRef.current?.focus();
+      };
+
       const handleClick = () => {
         if (window.getSelection()?.toString() === "") {
-          inputRef.current?.focus();
+          focusInput();
         }
       };
       
-      const timeoutId = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
+      const timeoutId = setTimeout(focusInput, 50);
 
+      window.addEventListener("focus", focusInput);
       document.addEventListener("click", handleClick);
       return () => {
+        window.removeEventListener("focus", focusInput);
         document.removeEventListener("click", handleClick);
         clearTimeout(timeoutId);
       };
@@ -47,13 +51,17 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
     if (!input.trim() || isThinking) return;
     const message = input;
     setInput("");
+    if (message.trim().toLowerCase() === "clear") {
+      clearMessages();
+      return;
+    }
     await sendMessage(message);
   };
 
   return (
     <div className={`flex flex-col flex-grow w-full h-full overflow-hidden ${isActive ? "flex" : "hidden"}`}>
       {/* Terminal Output */}
-      <div className="flex-grow overflow-y-auto p-4 scrollbar-custom space-y-2 font-mono text-sm md:text-base pb-2">
+      <div className="flex-grow overflow-y-auto p-4 scrollbar-custom font-mono text-sm md:text-base pb-2">
         <div className="text-green-700/80 mb-6 font-mono text-xs md:text-sm">
           <p>Coinbase AgentKit Terminal [Version 1.0.0]</p>
           <p>(c) 2024 Onchain Corp. All rights reserved.</p>
@@ -62,16 +70,18 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
         </div>
 
         {messages.map((msg, index) => (
-          <div key={index} className="flex flex-col mb-4">
+          <div key={index} className="flex flex-col">
             {msg.sender === "user" ? (
               <div className="flex items-start group">
-                <span className="text-green-500 mr-3 shrink-0 select-none font-bold">
-                  user@onchain:~$
+                <span className="text-green-500 mr-1 shrink-0 select-none font-bold">
+                  user@agentkit:
                 </span>
+                <span className="text-blue-500 mr-2 shrink-0 select-none font-bold">~</span>
+                <span className="text-white mr-2 shrink-0 select-none font-bold">$</span>
                 <span className="text-gray-100 break-words font-medium">{msg.text}</span>
               </div>
             ) : (
-              <div className="mt-2 text-green-400 leading-relaxed pl-0 md:pl-4">
+              <div className="text-green-400 leading-relaxed pl-0 mb-4 whitespace-pre-wrap">
                 <ReactMarkdown
                   components={{
                     a: (props) => (
@@ -82,12 +92,12 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
                         rel="noopener noreferrer"
                       />
                     ),
-                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                    p: ({ children }) => <span className="mb-2 last:mb-0 block">{children}</span>,
                     code: ({ children }) => (
-                      <code className="bg-green-900/20 text-green-300 px-1 py-0.5 rounded text-xs md:text-sm font-bold border border-green-900/30">{children}</code>
+                      <span className="bg-green-900/20 text-green-300 px-1 py-0.5 rounded text-xs md:text-sm font-bold border border-green-900/30">{children}</span>
                     ),
                     pre: ({ children }) => (
-                      <pre className="bg-black/50 border border-green-800/40 p-3 rounded-sm my-3 overflow-x-auto text-xs md:text-sm scrollbar-custom shadow-[0_0_10px_rgba(0,0,0,0.3)]">{children}</pre>
+                      <div className="bg-black/50 border border-green-800/40 p-3 rounded-sm my-2 overflow-x-auto text-xs md:text-sm shadow-[0_0_10px_rgba(0,0,0,0.3)]">{children}</div>
                     ),
                     ul: ({ children }) => <ul className="list-disc ml-5 mb-2 marker:text-green-600">{children}</ul>,
                     ol: ({ children }) => <ol className="list-decimal ml-5 mb-2 marker:text-green-600">{children}</ol>,
@@ -111,18 +121,18 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
           </div>
         )}
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Line */}
-      <div className="p-3 md:p-4 bg-black/95 shrink-0 z-20 border-t border-green-900/20 backdrop-blur">
-        <div className="flex items-center text-green-500 font-mono text-sm md:text-base">
-          <span className="mr-3 shrink-0 font-bold hidden sm:block">user@onchain:~$</span>
-          <span className="mr-2 shrink-0 font-bold sm:hidden">{">"}</span>
+        {/* Input Line - Inline */}
+        {!isThinking && (
+        <div className="flex items-center font-mono text-sm md:text-base mt-2">
+            <span className="text-green-500 mr-1 shrink-0 select-none font-bold">
+              user@agentkit:
+            </span>
+            <span className="text-blue-500 mr-2 shrink-0 select-none font-bold">~</span>
+            <span className="text-white mr-2 shrink-0 select-none font-bold">$</span>
           <input
             ref={inputRef}
             type="text"
-            className="flex-grow bg-transparent border-none outline-none text-white font-mono caret-green-500 placeholder-green-900/30"
+            className="flex-grow bg-transparent border-none outline-none text-white font-mono caret-green-500"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -133,6 +143,10 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
             spellCheck="false"
           />
         </div>
+        )}
+
+
+        <div ref={messagesEndRef} />
       </div>
     </div>
   );
@@ -197,7 +211,7 @@ export default function Home() {
               `}
             >
               <span className="truncate flex-grow">
-                {activeTabId === tab.id ? "~/agent-kit" : tab.name}
+                {activeTabId === tab.id ? "user@agentkit:~" : tab.name}
               </span>
               
               {/* Close Button */}
@@ -222,7 +236,7 @@ export default function Home() {
 
           {/* New Tab Button */}
           <button
-            onClick={addNewTab}
+            onClick={addNewTab} // Fixed closing bracket
             className="mb-1 ml-1 p-1.5 text-green-700/50 hover:text-green-400 hover:bg-green-900/20 rounded-md transition-colors"
             title="New Terminal"
           >

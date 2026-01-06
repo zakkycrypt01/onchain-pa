@@ -2,7 +2,13 @@ import { openai } from "@ai-sdk/openai";
 import { getVercelAITools } from "@coinbase/agentkit-vercel-ai-sdk";
 import { prepareAgentkitAndWalletProvider } from "./prepare-agentkit";
 import { google } from "@ai-sdk/google";
+import { z } from "zod";
+import { tool } from "ai";
+import { exec } from "child_process";
+import { promisify } from "util";
+
 // import type { LanguageModelV1, LanguageModelV1 as LanguageModel } from "ai";
+const execAsync = promisify(exec);
 
 
 /**
@@ -23,7 +29,7 @@ import { google } from "@ai-sdk/google";
 
 // The agent
 type Agent = {
-  tools: ReturnType<typeof getVercelAITools>;
+  tools: any;
   system: string;
   model: ReturnType<typeof google>;  // Use the actual model type
   maxSteps?: number;
@@ -72,7 +78,25 @@ export async function createAgent(): Promise<Agent> {
         If users require more information regarding CDP or AgentKit, recommend they visit docs.cdp.coinbase.com for more information.
         Be concise and helpful with your responses. Refrain from restating your tools' descriptions unless it is explicitly requested.
         `;
-    const tools = getVercelAITools(agentkit);
+    const agentKitTools = getVercelAITools(agentkit);
+    const tools = {
+      ...agentKitTools,
+      runTerminalCommand: tool({
+        description: "Execute a command in the terminal",
+        parameters: z.object({
+          command: z.string().describe("The command to execute"),
+        }),
+        execute: async ({ command }) => {
+          try {
+            const { stdout, stderr } = await execAsync(command);
+            return stdout || stderr;
+          } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return `Error executing command: ${(error as any).message}`;
+          }
+        },
+      }),
+    };
 
     agent = {
       tools,

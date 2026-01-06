@@ -70,5 +70,9 @@ export function useAgent() {
     setIsThinking(false);
   };
 
-  return { messages, sendMessage, isThinking };
+  const clearMessages = () => {
+    setMessages([]);
+  };
+
+  return { messages, sendMessage, isThinking, clearMessages };
 }
