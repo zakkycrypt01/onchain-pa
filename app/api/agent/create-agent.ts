@@ -1,13 +1,11 @@
 import { openai } from "@ai-sdk/openai";
 import { getVercelAITools } from "@coinbase/agentkit-vercel-ai-sdk";
-import { prepareAgentkitAndWalletProvider } from "./prepare-agentkit";
+import { prepareAgentkitAndWalletProvider } from "./prepare-agentkit-simple";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { tool } from "ai";
 import { exec } from "child_process";
 import { promisify } from "util";
-// import { createPublicClient, http } from "viem";
-// import { baseSepolia } from "viem/chains";
 import { parseCommandInput, getHelpText, getShortcutByAlias } from "./command-shortcuts";
 
 // import type { LanguageModelV1, LanguageModelV1 as LanguageModel } from "ai";
