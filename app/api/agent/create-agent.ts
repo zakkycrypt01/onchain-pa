@@ -106,38 +106,28 @@ export async function createAgent(): Promise<Agent> {
             const walletAddress = walletProvider.getAddress();
             const network = walletProvider.getNetwork();
             
-            // Get transaction history using the wallet's built-in method
-            const transactions = await walletProvider.getTransactionHistory?.({
-              limit,
-            }) || [];
+            // Get the wallet's public key and account details
+            const wallet = await walletProvider.getDefaultAccount();
             
-            if (!transactions || transactions.length === 0) {
-              return {
-                walletAddress,
-                networkId: network.networkId,
-                message: "No transactions found",
-                transactions: [],
-              };
-            }
-
-            return {
+            // Try to get transaction history from the wallet
+            // Since getTransactionHistory may not be available, we'll construct a message
+            // about the wallet's transaction capabilities
+            const transactionInfo = {
               walletAddress,
               networkId: network.networkId,
-              totalReturned: transactions.length,
-              limit,
-              transactions: transactions.map((tx: any) => ({
-                hash: tx.hash || tx.txHash || tx.transactionHash,
-                from: tx.from || tx.fromAddress,
-                to: tx.to || tx.toAddress,
-                value: tx.value || tx.amount,
-                gasUsed: tx.gasUsed,
-                gasPrice: tx.gasPrice,
-                status: tx.status,
-                blockNumber: tx.blockNumber,
-                timestamp: tx.timestamp,
-                type: tx.type,
-              })),
+              accountInfo: wallet ? {
+                address: (wallet as any).address,
+                publicKey: (wallet as any).publicKey,
+              } : null,
+              message: "Transaction history query requires additional CDP API integration. Use 'get_wallet_details' action to view wallet address and then query external block explorer or CDP API for transaction history.",
+              availableActions: [
+                "Use balanceOf to check token balances",
+                "Use get_wallet_details to view wallet information",
+                "Check block explorer for full transaction history",
+              ],
             };
+
+            return transactionInfo;
           } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return `Error fetching transaction history: ${(error as any).message}`;
