@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useCallback, useEffect } from "react";
 
 export interface ThemeCustomization {
@@ -128,18 +130,25 @@ const THEME_PRESETS: Record<string, ThemeCustomization> = {
 export const useThemeCustomization = () => {
   const [theme, setTheme] = useState<ThemeCustomization>(DEFAULT_THEME);
   const [savedThemes, setSavedThemes] = useState<Record<string, ThemeCustomization>>({});
+  const [isClient, setIsClient] = useState(false);
 
-  // Load theme from localStorage on mount
+  // Initialize on client side only
   useEffect(() => {
+    setIsClient(true);
     const saved = localStorage.getItem("customTheme");
     const savedThemesStr = localStorage.getItem("savedThemes");
 
     if (saved) {
       try {
-        setTheme(JSON.parse(saved));
+        const parsedTheme = JSON.parse(saved);
+        setTheme(parsedTheme);
+        applyThemeToDOM(parsedTheme);
       } catch (e) {
         console.error("Failed to load custom theme:", e);
+        applyThemeToDOM(DEFAULT_THEME);
       }
+    } else {
+      applyThemeToDOM(DEFAULT_THEME);
     }
 
     if (savedThemesStr) {
