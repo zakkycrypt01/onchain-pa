@@ -11,7 +11,7 @@ type FloatingCharactersProps = {
 
 export default function FloatingCharacters({
   characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%",
-  density = 70,
+  density = 30,
   minSize = 12,
   maxSize = 24,
 }: FloatingCharactersProps) {
@@ -21,8 +21,8 @@ export default function FloatingCharacters({
     const chars = characters.split("");
     const pick = () => chars[Math.floor(Math.random() * chars.length)] || "*";
     
-    // Create vertical column streams
-    const columnCount = 120; // Number of vertical columns across screen
+    // Create vertical column streams - reduced from 120 to 40 columns
+    const columnCount = 40;
     const charsPerColumn = Math.ceil(density / columnCount);
     const generated: { char: string; style: React.CSSProperties }[] = [];
     
@@ -30,9 +30,9 @@ export default function FloatingCharacters({
       const left = (col / columnCount) * 100;
       
       for (let row = 0; row < charsPerColumn; row++) {
-        const dur = `${(2.5 + Math.random() * 3.5).toFixed(1)}s`;
-        const delay = `${(row * 0.08 + Math.random() * 0.05).toFixed(2)}s`;
-        const opacity = (0.3 + Math.random() * 0.7).toFixed(2);
+        const dur = `${(3 + Math.random() * 3).toFixed(1)}s`;
+        const delay = `${(row * 0.15 + Math.random() * 0.1).toFixed(2)}s`;
+        const opacity = (0.2 + Math.random() * 0.4).toFixed(2);
         
         generated.push({
           char: pick(),
@@ -54,7 +54,7 @@ export default function FloatingCharacters({
     }
     
     setItems(generated.slice(0, density));
-  }, [characters, density, minSize, maxSize]);
+  }, [density]);
 
   return (
     <div className="floating-bg" aria-hidden="true">
