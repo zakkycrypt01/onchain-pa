@@ -49,9 +49,9 @@ import * as fs from "fs";
 const WALLET_DATA_FILE = "wallet_data.txt";
 
 type WalletData = {
-  privateKey?: Hex;
-  smartWalletAddress: Address;
-  ownerAddress?: Address;
+  privateKey?: string;
+  smartWalletAddress: string;
+  ownerAddress?: string;
 };
 
 /**
@@ -75,14 +75,14 @@ export async function prepareAgentkitAndWalletProvider(): Promise<{
   }
 
   let walletData: WalletData | null = null;
-  let owner: Hex | LocalAccount | undefined = undefined;
+  let owner: string | undefined = undefined;
 
   // Read existing wallet data if available
   if (fs.existsSync(WALLET_DATA_FILE)) {
     try {
       walletData = JSON.parse(fs.readFileSync(WALLET_DATA_FILE, "utf8")) as WalletData;
       if (walletData.ownerAddress) owner = walletData.ownerAddress;
-      else if (walletData.privateKey) owner = privateKeyToAccount(walletData.privateKey as Hex);
+      else if (walletData.privateKey) owner = walletData.privateKey;
       else
         console.log(
           `No ownerAddress or privateKey found in ${WALLET_DATA_FILE}, will create a new CDP server account as owner`,
