@@ -89,7 +89,7 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
           }}
         >
           {/* Window Bar */}
-          <div className="flex items-center justify-between px-4 py-3 bg-[#111] border-b border-blue-500/20">
+          <div className="flex items-center justify-between px-4 py-6 bg-[#111] border-b border-blue-500/20">
             <div className="flex gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
