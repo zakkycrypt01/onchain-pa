@@ -100,23 +100,21 @@ export async function createAgent(): Promise<Agent> {
         description: "List all transaction history for the wallet",
         parameters: z.object({
           limit: z.number().optional().describe("Maximum number of transactions to return (default: 10)"),
-          offset: z.number().optional().describe("Number of transactions to skip (default: 0)"),
         }),
-        execute: async ({ limit = 10, offset = 0 }) => {
+        execute: async ({ limit = 10 }) => {
           try {
             const walletAddress = walletProvider.getAddress();
-            const networkId = walletProvider.getNetwork().networkId;
+            const network = walletProvider.getNetwork();
             
-            // Get transaction history from the wallet
-            const history = await walletProvider.getTransactionHistory({
+            // Get transaction history using the wallet's built-in method
+            const transactions = await walletProvider.getTransactionHistory?.({
               limit,
-              offset,
-            });
+            }) || [];
             
-            if (!history || history.length === 0) {
+            if (!transactions || transactions.length === 0) {
               return {
                 walletAddress,
-                networkId,
+                networkId: network.networkId,
                 message: "No transactions found",
                 transactions: [],
               };
@@ -124,15 +122,14 @@ export async function createAgent(): Promise<Agent> {
 
             return {
               walletAddress,
-              networkId,
-              totalReturned: history.length,
+              networkId: network.networkId,
+              totalReturned: transactions.length,
               limit,
-              offset,
-              transactions: history.map((tx: any) => ({
-                hash: tx.hash || tx.transactionHash,
-                from: tx.from,
-                to: tx.to,
-                value: tx.value,
+              transactions: transactions.map((tx: any) => ({
+                hash: tx.hash || tx.txHash || tx.transactionHash,
+                from: tx.from || tx.fromAddress,
+                to: tx.to || tx.toAddress,
+                value: tx.value || tx.amount,
                 gasUsed: tx.gasUsed,
                 gasPrice: tx.gasPrice,
                 status: tx.status,
