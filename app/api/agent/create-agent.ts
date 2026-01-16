@@ -6,6 +6,8 @@ import { z } from "zod";
 import { tool } from "ai";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { createPublicClient, http } from "viem";
+import { baseSepolia } from "viem/chains";
 
 // import type { LanguageModelV1, LanguageModelV1 as LanguageModel } from "ai";
 const execAsync = promisify(exec);
@@ -106,22 +108,70 @@ export async function createAgent(): Promise<Agent> {
             const walletAddress = walletProvider.getAddress();
             const network = walletProvider.getNetwork();
             
-            // Return wallet info and instructions for querying transaction history
-            const result = {
+            // Create a public client to query the blockchain
+            const publicClient = createPublicClient({
+              chain: baseSepolia,
+              transport: http(process.env.RPC_URL || "https://sepolia.base.org"),
+            });
+
+            // Get the current block number
+            const blockNumber = await publicClient.getBlockNumber();
+            
+            // Search for transactions in recent blocks (last 1000 blocks)
+            const searchFromBlock = blockNumber > 1000n ? blockNumber - 1000n : 0n;
+            
+            // Create a filter for transactions to/from the wallet
+            const logs = await publicClient.getLogs({
+              fromBlock: searchFromBlock,
+              toBlock: blockNumber,
+              address: walletAddress as `0x${string}`,
+            });
+
+            // Get block details and transaction details
+            const transactions: any[] = [];
+            const seenTxHashes = new Set<string>();
+
+            for (let i = 0; i < Math.min(limit, logs.length); i++) {
+              const log = logs[i];
+              if (!seenTxHashes.has(log.transactionHash || "")) {
+                try {
+                  const tx = await publicClient.getTransaction({
+                    hash: log.transactionHash as `0x${string}`,
+                  });
+                  
+                  const receipt = await publicClient.getTransactionReceipt({
+                    hash: log.transactionHash as `0x${string}`,
+                  });
+
+                  transactions.push({
+                    hash: tx.hash,
+                    from: tx.from,
+                    to: tx.to,
+                    value: tx.value.toString(),
+                    gasUsed: receipt?.gasUsed?.toString() || "0",
+                    gasPrice: tx.gasPrice?.toString() || "0",
+                    status: receipt?.status === "success" ? "confirmed" : "failed",
+                    blockNumber: tx.blockNumber?.toString() || "0",
+                    type: tx.type,
+                  });
+                  seenTxHashes.add(log.transactionHash || "");
+                } catch (e) {
+                  // Skip transactions we can't fetch details for
+                  continue;
+                }
+              }
+            }
+
+            return {
               success: true,
               walletAddress,
               networkId: network.networkId,
+              currentBlock: blockNumber.toString(),
+              searchFromBlock: searchFromBlock.toString(),
+              transactionCount: transactions.length,
               limit,
-              note: "To view complete transaction history, you can:",
-              options: [
-                "1. Query the blockchain directly using RPC calls",
-                "2. Use a blockchain explorer API (e.g., Etherscan for Ethereum, Basescan for Base)",
-                "3. Check CDP API documentation for transaction history endpoints",
-              ],
-              recommendedAction: `Visit the block explorer for network ${network.networkId} to view all transactions for address ${walletAddress}`,
+              transactions: transactions.slice(0, limit),
             };
-
-            return result;
           } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return `Error fetching transaction history: ${(error as any).message}`;
