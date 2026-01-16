@@ -6,6 +6,66 @@ import ReactMarkdown from "react-markdown";
 import FloatingCharacters from "./components/FloatingCharacters";
 
 /**
+ * Landing Page Component
+ */
+function LandingPage({ onEnter }: { onEnter: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full min-h-screen bg-black text-green-500 relative overflow-hidden">
+      <FloatingCharacters />
+      
+      <div className="relative z-10 max-w-2xl px-6 text-center">
+        {/* Main Title */}
+        <div className="mb-8">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 text-green-400 font-mono">
+            ONCHAIN PA
+          </h1>
+          <p className="text-xl md:text-2xl text-green-500/80 font-mono mb-2">
+            Coinbase AgentKit Terminal
+          </p>
+          <p className="text-sm md:text-base text-green-600/70 font-mono">
+            Interact with blockchain through natural language
+          </p>
+        </div>
+
+        {/* Features */}
+        <div className="grid grid-cols-2 gap-4 mb-12 text-left max-w-md mx-auto">
+          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
+            <p className="text-green-400 font-bold text-sm">✓ Send Crypto</p>
+            <p className="text-green-600 text-xs mt-1">ETH, USDC, and more</p>
+          </div>
+          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
+            <p className="text-green-400 font-bold text-sm">✓ Swap Tokens</p>
+            <p className="text-green-600 text-xs mt-1">DEX powered swaps</p>
+          </div>
+          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
+            <p className="text-green-400 font-bold text-sm">✓ Smart Contracts</p>
+            <p className="text-green-600 text-xs mt-1">Deploy & interact</p>
+          </div>
+          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
+            <p className="text-green-400 font-bold text-sm">✓ NFT Management</p>
+            <p className="text-green-600 text-xs mt-1">Manage your assets</p>
+          </div>
+        </div>
+
+        {/* Enter Button */}
+        <button
+          onClick={onEnter}
+          className="px-8 py-3 border-2 border-green-500 text-green-500 font-mono font-bold hover:bg-green-500 hover:text-black transition-colors duration-200 text-lg"
+        >
+          $ ENTER TERMINAL
+        </button>
+
+        {/* Footer */}
+        <div className="mt-12 text-green-700/50 text-xs font-mono">
+          <p>© 2024 Onchain Corp. All rights reserved.</p>
+          <p className="mt-2">Powered by Coinbase AgentKit</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Single Terminal Session Component
  */
 function TerminalSession({ isActive }: { isActive: boolean }) {
@@ -47,62 +107,57 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
     scrollToBottom();
   }, [messages, isActive]);
 
-  // Phase 0: Typing animation for "what can the agent do?"
+  // Consolidated demo animation effect - all phases in one effect
   useEffect(() => {
-    if (showDemo && isActive && demoPhase === 0 && demoTypedChars < demoPhase0Prompt.length) {
-      const timer = setTimeout(() => {
+    if (!showDemo || !isActive) return;
+
+    let timer: NodeJS.Timeout;
+
+    // Phase 0: Typing animation for "what can the agent do?"
+    if (demoPhase === 0 && demoTypedChars < demoPhase0Prompt.length) {
+      timer = setTimeout(() => {
         setDemoTypedChars(prev => prev + 1);
       }, 30);
       return () => clearTimeout(timer);
     }
-  }, [showDemo, isActive, demoPhase, demoTypedChars]);
 
-  // Phase 0: Response capabilities (line by line)
-  useEffect(() => {
-    if (showDemo && isActive && demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && demoResponseLines < demoPhase0Response.length) {
-      const timer = setTimeout(() => {
+    // Phase 0: Response capabilities (line by line)
+    if (demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && demoResponseLines < demoPhase0Response.length) {
+      timer = setTimeout(() => {
         setDemoResponseLines(prev => prev + 1);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
 
-  // Transition to Phase 1 after Phase 0 completes
-  useEffect(() => {
-    if (showDemo && isActive && demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && demoResponseLines === demoPhase0Response.length) {
-      const timer = setTimeout(() => {
+    // Transition to Phase 1 after Phase 0 completes
+    if (demoPhase === 0 && demoTypedChars === demoPhase0Prompt.length && demoResponseLines === demoPhase0Response.length) {
+      timer = setTimeout(() => {
         setDemoPhase(1);
         setDemoTypedChars(0);
         setDemoResponseLines(0);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
 
-  // Phase 1: Typing animation for transaction
-  useEffect(() => {
-    if (showDemo && isActive && demoPhase === 1 && demoTypedChars < demoPhase1Prompt.length) {
-      const timer = setTimeout(() => {
+    // Phase 1: Typing animation for transaction
+    if (demoPhase === 1 && demoTypedChars < demoPhase1Prompt.length) {
+      timer = setTimeout(() => {
         setDemoTypedChars(prev => prev + 1);
       }, 30);
       return () => clearTimeout(timer);
     }
-  }, [showDemo, isActive, demoPhase, demoTypedChars]);
 
-  // Phase 1: Response appearing (line by line)
-  useEffect(() => {
-    if (showDemo && isActive && demoPhase === 1 && demoTypedChars === demoPhase1Prompt.length && demoResponseLines < demoPhase1Response.length) {
-      const timer = setTimeout(() => {
+    // Phase 1: Response appearing (line by line)
+    if (demoPhase === 1 && demoTypedChars === demoPhase1Prompt.length && demoResponseLines < demoPhase1Response.length) {
+      timer = setTimeout(() => {
         setDemoResponseLines(prev => prev + 1);
       }, 600);
       return () => clearTimeout(timer);
     }
-  }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
 
-  // Auto-clear demo after Phase 1 completes
-  useEffect(() => {
-    if (showDemo && isActive && demoPhase === 1 && demoTypedChars === demoPhase1Prompt.length && demoResponseLines === demoPhase1Response.length) {
-      const timer = setTimeout(() => {
+    // Auto-clear demo after Phase 1 completes
+    if (demoPhase === 1 && demoTypedChars === demoPhase1Prompt.length && demoResponseLines === demoPhase1Response.length) {
+      timer = setTimeout(() => {
         setShowDemo(false);
         setDemoPhase(0);
         setDemoTypedChars(0);
@@ -110,6 +165,8 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
       }, 2000);
       return () => clearTimeout(timer);
     }
+
+    return () => clearTimeout(timer);
   }, [showDemo, isActive, demoPhase, demoTypedChars, demoResponseLines]);
 
   useEffect(() => {
@@ -306,11 +363,16 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
  * Terminal Interface with Tabs
  */
 export default function Home() {
+  const [showLanding, setShowLanding] = useState(true);
   const [tabs, setTabs] = useState<{ id: string; name: string }[]>([
     { id: "1", name: "terminal" }
   ]);
   const [activeTabId, setActiveTabId] = useState("1");
   const [nextId, setNextId] = useState(2);
+
+  if (showLanding) {
+    return <LandingPage onEnter={() => setShowLanding(false)} />;
+  }
 
   const addNewTab = () => {
     const newId = String(nextId);
