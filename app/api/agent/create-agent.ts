@@ -106,28 +106,22 @@ export async function createAgent(): Promise<Agent> {
             const walletAddress = walletProvider.getAddress();
             const network = walletProvider.getNetwork();
             
-            // Get the wallet's public key and account details
-            const wallet = await walletProvider.getDefaultAccount();
-            
-            // Try to get transaction history from the wallet
-            // Since getTransactionHistory may not be available, we'll construct a message
-            // about the wallet's transaction capabilities
-            const transactionInfo = {
+            // Return wallet info and instructions for querying transaction history
+            const result = {
+              success: true,
               walletAddress,
               networkId: network.networkId,
-              accountInfo: wallet ? {
-                address: (wallet as any).address,
-                publicKey: (wallet as any).publicKey,
-              } : null,
-              message: "Transaction history query requires additional CDP API integration. Use 'get_wallet_details' action to view wallet address and then query external block explorer or CDP API for transaction history.",
-              availableActions: [
-                "Use balanceOf to check token balances",
-                "Use get_wallet_details to view wallet information",
-                "Check block explorer for full transaction history",
+              limit,
+              note: "To view complete transaction history, you can:",
+              options: [
+                "1. Query the blockchain directly using RPC calls",
+                "2. Use a blockchain explorer API (e.g., Etherscan for Ethereum, Basescan for Base)",
+                "3. Check CDP API documentation for transaction history endpoints",
               ],
+              recommendedAction: `Visit the block explorer for network ${network.networkId} to view all transactions for address ${walletAddress}`,
             };
 
-            return transactionInfo;
+            return result;
           } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return `Error fetching transaction history: ${(error as any).message}`;
