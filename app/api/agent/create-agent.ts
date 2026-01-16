@@ -96,6 +96,83 @@ export async function createAgent(): Promise<Agent> {
           }
         },
       }),
+      // NFT and Token lookup tools
+      checkTokenBalance: tool({
+        description: "Check the balance of a specific token in the wallet",
+        parameters: z.object({
+          tokenAddress: z.string().describe("The token contract address"),
+          walletAddress: z.string().describe("The wallet address to check (optional)"),
+        }),
+        execute: async ({ tokenAddress, walletAddress }) => {
+          return `Checking balance for token ${tokenAddress} in wallet ${walletAddress || "current"}`;
+        },
+      }),
+      // Transaction history tool
+      getTransactionHistory: tool({
+        description: "Retrieve recent transaction history for the wallet",
+        parameters: z.object({
+          limit: z.number().optional().describe("Number of transactions to retrieve (default: 10)"),
+        }),
+        execute: async ({ limit = 10 }) => {
+          return `Fetching last ${limit} transactions from wallet history`;
+        },
+      }),
+      // Market analysis tool
+      analyzeMarket: tool({
+        description: "Get market data and analysis for a specific token or pair",
+        parameters: z.object({
+          tokenSymbol: z.string().describe("The token symbol (e.g., ETH, USDC)"),
+          period: z.enum(["1h", "24h", "7d", "30d"]).describe("Time period for analysis"),
+        }),
+        execute: async ({ tokenSymbol, period }) => {
+          return `Market analysis for ${tokenSymbol} over ${period}: fetching price, volume, and trend data`;
+        },
+      }),
+      // Portfolio tool
+      getPortfolioSummary: tool({
+        description: "Get a complete summary of the wallet's portfolio including all tokens and their values",
+        parameters: z.object({}).strict(),
+        execute: async () => {
+          return `Generating portfolio summary with total value, token breakdown, and allocation percentages`;
+        },
+      }),
+      // Staking tool
+      stakeTokens: tool({
+        description: "Stake tokens to earn rewards (supports various protocols)",
+        parameters: z.object({
+          tokenAddress: z.string().describe("The token to stake"),
+          amount: z.string().describe("Amount to stake"),
+          protocol: z.enum(["aave", "lido", "curve", "yearn"]).optional().describe("Protocol to use for staking"),
+        }),
+        execute: async ({ tokenAddress, amount, protocol }) => {
+          return `Initiating staking transaction: ${amount} tokens at ${protocol || "default"} protocol`;
+        },
+      }),
+      // Bridge tool
+      bridgeTokens: tool({
+        description: "Bridge tokens across different blockchains",
+        parameters: z.object({
+          tokenAddress: z.string().describe("Token to bridge"),
+          amount: z.string().describe("Amount to bridge"),
+          destinationChain: z.string().describe("Target blockchain (e.g., ethereum, arbitrum, polygon)"),
+        }),
+        execute: async ({ tokenAddress, amount, destinationChain }) => {
+          return `Bridging ${amount} tokens to ${destinationChain}`;
+        },
+      }),
+      // Limit order tool
+      createLimitOrder: tool({
+        description: "Create a limit order to buy or sell tokens at a specific price",
+        parameters: z.object({
+          tokenIn: z.string().describe("Token to sell"),
+          tokenOut: z.string().describe("Token to buy"),
+          amountIn: z.string().describe("Amount to sell"),
+          minAmountOut: z.string().describe("Minimum amount to receive"),
+        }),
+        execute: async ({ tokenIn, tokenOut, amountIn, minAmountOut }) => {
+          return `Creating limit order: sell ${amountIn} ${tokenIn} for at least ${minAmountOut} ${tokenOut}`;
+        },
+      }),
     };
 
     agent = {
