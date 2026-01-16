@@ -360,7 +360,7 @@ function TerminalSession({ isActive }: { isActive: boolean }) {
 
   const scrollToBottom = () => {
     if (isActive) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current?.scrollIntoView();
     }
   };
 
