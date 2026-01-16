@@ -169,12 +169,12 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
 
         {/* Launch Button */}
         <div className="mt-12">
-          <button
-            onClick={onEnter}
-            className="px-8 h-14 bg-blue-500 text-white text-lg font-bold rounded-lg hover:bg-blue-600 transition-all border border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+          <a
+            href="/terminal"
+            className="inline-block px-8 h-14 bg-blue-500 text-white text-lg font-bold rounded-lg hover:bg-blue-600 transition-all border border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]"
           >
             Launch Terminal
-          </button>
+          </a>
         </div>
       </div>
 
