@@ -6,6 +6,11 @@
 
 html {
   scroll-behavior: auto !important;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 @layer base {
