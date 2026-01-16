@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { useThemeCustomization } from "@/app/hooks/useThemeCustomization";
 
 interface TooltipProps {
   content: string;
   children: React.ReactNode;
   position?: "top" | "bottom" | "left" | "right";
   delay?: number;
+  variant?: "default" | "accent" | "success" | "danger";
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
@@ -12,9 +14,36 @@ export const Tooltip: React.FC<TooltipProps> = ({
   children,
   position = "top",
   delay = 300,
+  variant = "default",
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { theme } = useThemeCustomization();
+
+  const colorMap = {
+    default: {
+      bg: theme.backgroundColor,
+      text: theme.textColor,
+      border: theme.primaryColor,
+    },
+    accent: {
+      bg: theme.accentColor,
+      text: theme.backgroundColor,
+      border: theme.accentColor,
+    },
+    success: {
+      bg: theme.successColor,
+      text: theme.backgroundColor,
+      border: theme.successColor,
+    },
+    danger: {
+      bg: theme.dangerColor,
+      text: theme.backgroundColor,
+      border: theme.dangerColor,
+    },
+  };
+
+  const colors = colorMap[variant];
 
   const handleMouseEnter = () => {
     timeoutRef.current = setTimeout(() => {
@@ -43,20 +72,31 @@ export const Tooltip: React.FC<TooltipProps> = ({
         <div
           className={`
             absolute ${positionClasses[position]} 
-            bg-gray-900 text-gray-100 text-xs px-2 py-1 rounded border border-cyan-500/50
-            whitespace-nowrap z-50 animate-fade-in
+            text-xs px-2 py-1 rounded whitespace-nowrap z-50 animate-fade-in
+            transition-all duration-200
           `}
-          style={{ boxShadow: "0 0 10px rgba(34, 211, 238, 0.2)" }}
+          style={{
+            backgroundColor: colors.bg,
+            color: colors.text,
+            borderColor: colors.border,
+            borderWidth: "1px",
+            boxShadow: `0 0 15px ${colors.border}40`,
+          }}
         >
           {content}
           <div
             className={`
-              absolute w-2 h-2 bg-gray-900 border border-cyan-500/50 rotate-45
+              absolute w-2 h-2 rotate-45
               ${position === "top" ? "-bottom-1 left-1/2 -translate-x-1/2" : ""}
               ${position === "bottom" ? "-top-1 left-1/2 -translate-x-1/2" : ""}
               ${position === "left" ? "-right-1 top-1/2 -translate-y-1/2" : ""}
               ${position === "right" ? "-left-1 top-1/2 -translate-y-1/2" : ""}
             `}
+            style={{
+              backgroundColor: colors.bg,
+              borderColor: colors.border,
+              borderWidth: "1px",
+            }}
           />
         </div>
       )}
