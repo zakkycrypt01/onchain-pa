@@ -99,7 +99,7 @@ export async function POST(
     }
 
     // Validate userMessage exists and is not empty
-    const { userMessage } = body;
+    const { userMessage, privateKey } = body;
     if (!userMessage || typeof userMessage !== "string" || userMessage.trim() === "") {
       return NextResponse.json(
         {
@@ -109,8 +109,8 @@ export async function POST(
       );
     }
 
-    // 2. Get the agent
-    let agent = await createAgent();
+    // 2. Get the agent with optional private key for embedded wallet
+    let agent = await createAgent(privateKey);
 
     // 3. Wrap tools to convert string responses to JSON objects
     agent = {
