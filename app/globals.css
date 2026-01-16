@@ -4,6 +4,10 @@
   --font-mono: var(--font-mono);
 }
 
+html {
+  scroll-behavior: auto !important;
+}
+
 @layer base {
   body {
     @apply bg-black text-green-500 font-mono;
