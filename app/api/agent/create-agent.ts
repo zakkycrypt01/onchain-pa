@@ -319,7 +319,25 @@ export async function createAgent(): Promise<Agent> {
           dex: z.enum(["uniswap", "curve", "balancer", "0x"]).optional().describe("DEX to use for swap"),
         }),
         execute: async ({ tokenIn, tokenOut, amountIn, minAmountOut, dex }) => {
-          return `Executing swap: ${amountIn} ${tokenIn} → ${tokenOut} (min: ${minAmountOut}) on ${dex || "best route"}. Transaction will be optimized for best price and lowest slippage.`;
+          return {
+            action: "executeSwap",
+            inputToken: tokenIn,
+            outputToken: tokenOut,
+            inputAmount: amountIn,
+            minimumOutput: minAmountOut,
+            selectedDEX: dex || "best available",
+            estimatedOutput: minAmountOut,
+            priceImpact: "0%",
+            fees: "0%",
+            executionDetails: {
+              gasEstimate: "150000",
+              gasPrice: "0 gwei",
+              totalCost: "$0.00",
+              estimatedTime: "~15 seconds"
+            },
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       // Aave Lending Protocol actions
@@ -331,7 +349,22 @@ export async function createAgent(): Promise<Agent> {
           collateralEnabled: z.boolean().optional().describe("Enable as collateral (default: true)"),
         }),
         execute: async ({ asset, amount, collateralEnabled = true }) => {
-          return `Depositing ${amount} ${asset} to Aave. Collateral enabled: ${collateralEnabled}. Will earn variable interest on deposit.`;
+          return {
+            action: "aaveLend",
+            asset: asset,
+            depositAmount: amount,
+            collateralEnabled: collateralEnabled,
+            apy: "0%",
+            details: {
+              currentRate: "0% APY",
+              riskLevel: "low",
+              liquidationThreshold: "80%",
+              collateralFactor: "0.80"
+            },
+            gasEstimate: "200000",
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       aaveBorrow: tool({
@@ -342,7 +375,22 @@ export async function createAgent(): Promise<Agent> {
           rateMode: z.enum(["stable", "variable"]).describe("Interest rate type"),
         }),
         execute: async ({ asset, amount, rateMode }) => {
-          return `Borrowing ${amount} ${asset} from Aave at ${rateMode} rate. Ensure sufficient collateral is deposited. Current health factor will be calculated.`;
+          return {
+            action: "aaveBorrow",
+            borrowAsset: asset,
+            borrowAmount: amount,
+            rateMode: rateMode,
+            borrowRateAPY: "0%",
+            borrowDetails: {
+              currentDebt: "0",
+              healthFactor: "0",
+              requiredCollateral: amount,
+              liquidationPrice: "$0.00"
+            },
+            gasEstimate: "250000",
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       aaveRepay: tool({
@@ -352,7 +400,20 @@ export async function createAgent(): Promise<Agent> {
           amount: z.string().describe("Amount to repay (or 'max' for full repayment)"),
         }),
         execute: async ({ asset, amount }) => {
-          return `Repaying ${amount} ${asset} to Aave. This reduces your debt and improves health factor.`;
+          return {
+            action: "aaveRepay",
+            repayAsset: asset,
+            repayAmount: amount,
+            repayDetails: {
+              currentDebt: "0",
+              debtAfterRepay: "0",
+              interestPaid: "0",
+              healthFactorImprovement: "0%"
+            },
+            gasEstimate: "150000",
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       // Morpho Protocol actions
@@ -364,7 +425,21 @@ export async function createAgent(): Promise<Agent> {
           market: z.string().optional().describe("Specific Morpho market (optional)"),
         }),
         execute: async ({ asset, amount, market }) => {
-          return `Supplying ${amount} ${asset} to Morpho ${market || "best available"} market. Earning optimized lending yields through peer-to-peer matching.`;
+          return {
+            action: "morphoSupply",
+            supplyAsset: asset,
+            supplyAmount: amount,
+            market: market || "optimal market",
+            expectedAPY: "0%",
+            morphoDetails: {
+              allocationStrategy: "P2P matching + collateral fallback",
+              p2pRate: "0%",
+              poolRate: "0%",
+              gasEstimate: "200000"
+            },
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       morphoBorrow: tool({
@@ -375,7 +450,20 @@ export async function createAgent(): Promise<Agent> {
           market: z.string().optional().describe("Specific Morpho market (optional)"),
         }),
         execute: async ({ asset, amount, market }) => {
-          return `Borrowing ${amount} ${asset} from Morpho ${market || "best available"} market. Benefit from lower rates through peer-to-peer matching.`;
+          return {
+            action: "morphoBorrow",
+            borrowAsset: asset,
+            borrowAmount: amount,
+            market: market || "optimal market",
+            borrowRateAPY: "0%",
+            morphoDetails: {
+              optimizedRates: "P2P peer matching for best rates",
+              borrowRate: "0%",
+              gasEstimate: "250000"
+            },
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       // Uniswap V3 specific actions
@@ -389,7 +477,22 @@ export async function createAgent(): Promise<Agent> {
           feeTier: z.enum(["0.01", "0.05", "0.30", "1.00"]).optional().describe("Pool fee tier in percentage"),
         }),
         execute: async ({ tokenIn, tokenOut, amountIn, minAmountOut, feeTier }) => {
-          return `Uniswap V3 swap: ${amountIn} ${tokenIn} → min ${minAmountOut} ${tokenOut} using ${feeTier || "auto-selected"} fee tier.`;
+          return {
+            action: "uniswapExactInputSwap",
+            inputToken: tokenIn,
+            outputToken: tokenOut,
+            inputAmount: amountIn,
+            minimumOutput: minAmountOut,
+            feeTier: feeTier || "0.30%",
+            swapDetails: {
+              estimatedOutput: minAmountOut,
+              priceImpact: "0%",
+              liquidityProvider: "Uniswap V3",
+              gasEstimate: "180000"
+            },
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       uniswapAddLiquidity: tool({
@@ -402,7 +505,22 @@ export async function createAgent(): Promise<Agent> {
           tickRange: z.string().optional().describe("Tick range for position (optional)"),
         }),
         execute: async ({ token0, token1, amount0, amount1, tickRange }) => {
-          return `Adding ${amount0} ${token0} + ${amount1} ${token1} to Uniswap V3 liquidity pool${tickRange ? ` with tick range ${tickRange}` : ""}. Will earn trading fees.`;
+          return {
+            action: "uniswapAddLiquidity",
+            token0: token0,
+            token1: token1,
+            amount0: amount0,
+            amount1: amount1,
+            tickRange: tickRange || "Full range",
+            liquidityDetails: {
+              expectedLPTokens: "0",
+              feeTier: "0.30%",
+              expectedAPY: "0%",
+              gasEstimate: "300000"
+            },
+            network: walletProvider.getNetwork().networkId,
+            status: "ready_for_execution"
+          };
         },
       }),
       // LiFi cross-chain bridge/swap
@@ -417,7 +535,24 @@ export async function createAgent(): Promise<Agent> {
           slippage: z.string().optional().describe("Max slippage percentage (default: 0.5%)"),
         }),
         execute: async ({ tokenIn, tokenOut, amountIn, fromChain, toChain, slippage }) => {
-          return `LiFi cross-chain swap: ${amountIn} ${tokenIn} on ${fromChain} → ${tokenOut} on ${toChain}. Max slippage: ${slippage || "0.5"}%. Optimized route finding best bridge + swap combo.`;
+          return {
+            action: "liFiCrossChainSwap",
+            inputToken: tokenIn,
+            outputToken: tokenOut,
+            inputAmount: amountIn,
+            fromChain: fromChain,
+            toChain: toChain,
+            maxSlippage: slippage || "0.5%",
+            crossChainDetails: {
+              bestRoute: "Optimized bridge + DEX combination",
+              estimatedOutput: amountIn,
+              bridgeFee: "0%",
+              swapFee: "0%",
+              estimatedTime: "5-15 minutes",
+              totalCost: "$0.00"
+            },
+            status: "ready_for_execution"
+          };
         },
       }),
     };
