@@ -9,56 +9,134 @@ import FloatingCharacters from "./components/FloatingCharacters";
  * Landing Page Component
  */
 function LandingPage({ onEnter }: { onEnter: () => void }) {
+  const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full min-h-screen bg-black text-green-500 relative overflow-hidden">
       <FloatingCharacters />
       
-      <div className="relative z-10 max-w-2xl px-6 text-center">
-        {/* Main Title */}
-        <div className="mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 text-green-400 font-mono">
-            ONCHAIN PA
-          </h1>
-          <p className="text-xl md:text-2xl text-green-500/80 font-mono mb-2">
+      {/* Grid Background */}
+      <div className="absolute inset-0 opacity-10 z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,255,0,0.1)_1px,transparent_1px),linear-gradient(rgba(0,255,0,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      </div>
+
+      {/* CRT Scanline Effect */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] z-10 bg-size-[100%_2px] opacity-10"></div>
+
+      <div className="relative z-20 w-full max-w-5xl px-6 md:px-12">
+        {/* Top Banner */}
+        <div className="mb-12 text-center pt-8">
+          <div className="inline-block mb-6 px-4 py-2 border border-green-600/40 text-green-500 text-xs font-mono bg-green-950/20">
+            > SYSTEM INITIALIZED
+          </div>
+        </div>
+
+        {/* Main Title Section */}
+        <div className="mb-16 text-center">
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-green-600/40"></div>
+            <h1 className="text-6xl md:text-8xl font-bold text-green-400 font-mono glow-text">
+              ONCHAIN PA
+            </h1>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-green-600/40"></div>
+          </div>
+          <p className="text-lg md:text-2xl text-green-500 font-mono mb-2">
             Coinbase AgentKit Terminal
           </p>
-          <p className="text-sm md:text-base text-green-600/70 font-mono">
-            Interact with blockchain through natural language
+          <p className="text-sm md:text-base text-green-600/80 font-mono mb-4">
+            Interact with blockchain through natural language AI
           </p>
-        </div>
-
-        {/* Features */}
-        <div className="grid grid-cols-2 gap-4 mb-12 text-left max-w-md mx-auto">
-          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
-            <p className="text-green-400 font-bold text-sm">✓ Send Crypto</p>
-            <p className="text-green-600 text-xs mt-1">ETH, USDC, and more</p>
-          </div>
-          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
-            <p className="text-green-400 font-bold text-sm">✓ Swap Tokens</p>
-            <p className="text-green-600 text-xs mt-1">DEX powered swaps</p>
-          </div>
-          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
-            <p className="text-green-400 font-bold text-sm">✓ Smart Contracts</p>
-            <p className="text-green-600 text-xs mt-1">Deploy & interact</p>
-          </div>
-          <div className="border border-green-700/40 p-4 bg-green-950/10 rounded">
-            <p className="text-green-400 font-bold text-sm">✓ NFT Management</p>
-            <p className="text-green-600 text-xs mt-1">Manage your assets</p>
+          <div className="inline-block text-xs text-green-700 font-mono">
+            $ ./agent --network mainnet --mode interactive
           </div>
         </div>
 
-        {/* Enter Button */}
-        <button
-          onClick={onEnter}
-          className="px-8 py-3 border-2 border-green-500 text-green-500 font-mono font-bold hover:bg-green-500 hover:text-black transition-colors duration-200 text-lg"
-        >
-          $ ENTER TERMINAL
-        </button>
+        {/* Stats/Info Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+          <div className="border border-green-700/50 p-4 bg-green-950/10 backdrop-blur-sm hover:bg-green-950/20 transition-colors">
+            <p className="text-green-400 text-2xl font-bold">100+</p>
+            <p className="text-green-600/80 text-xs mt-1">Commands Available</p>
+          </div>
+          <div className="border border-green-700/50 p-4 bg-green-950/10 backdrop-blur-sm hover:bg-green-950/20 transition-colors">
+            <p className="text-green-400 text-2xl font-bold">24/7</p>
+            <p className="text-green-600/80 text-xs mt-1">Always Available</p>
+          </div>
+          <div className="border border-green-700/50 p-4 bg-green-950/10 backdrop-blur-sm hover:bg-green-950/20 transition-colors">
+            <p className="text-green-400 text-2xl font-bold">&lt;1s</p>
+            <p className="text-green-600/80 text-xs mt-1">Response Time</p>
+          </div>
+          <div className="border border-green-700/50 p-4 bg-green-950/10 backdrop-blur-sm hover:bg-green-950/20 transition-colors">
+            <p className="text-green-400 text-2xl font-bold">∞</p>
+            <p className="text-green-600/80 text-xs mt-1">Transactions/Day</p>
+          </div>
+        </div>
 
-        {/* Footer */}
-        <div className="mt-12 text-green-700/50 text-xs font-mono">
-          <p>© 2024 Onchain Corp. All rights reserved.</p>
-          <p className="mt-2">Powered by Coinbase AgentKit</p>
+        {/* Features Grid */}
+        <div className="mb-16">
+          <div className="text-left mb-6 ml-2">
+            <span className="text-green-500 font-mono text-sm">$ features --list</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { id: "send", icon: "💸", title: "Send Crypto", desc: "ETH, USDC, and 100+ tokens" },
+              { id: "swap", icon: "🔄", title: "Swap Tokens", desc: "DEX-powered atomic swaps" },
+              { id: "contracts", icon: "📋", title: "Smart Contracts", desc: "Deploy & interact with ease" },
+              { id: "nft", icon: "🎨", title: "NFT Management", desc: "Mint, buy, and manage NFTs" },
+              { id: "balance", icon: "💰", title: "Check Balances", desc: "Real-time wallet portfolio" },
+              { id: "batch", icon: "⚡", title: "Batch Operations", desc: "Execute complex transactions" }
+            ].map((feature) => (
+              <div
+                key={feature.id}
+                onMouseEnter={() => setHoveredFeature(feature.id)}
+                onMouseLeave={() => setHoveredFeature(null)}
+                className={`border p-5 rounded transition-all duration-300 cursor-pointer group ${
+                  hoveredFeature === feature.id
+                    ? "border-green-400 bg-green-950/30 shadow-[0_0_15px_rgba(0,255,0,0.2)]"
+                    : "border-green-700/40 bg-green-950/10 hover:border-green-600/60"
+                }`}
+              >
+                <div className="text-3xl mb-2">{feature.icon}</div>
+                <p className={`font-bold text-sm transition-colors ${
+                  hoveredFeature === feature.id ? "text-green-300" : "text-green-400"
+                } font-mono`}>
+                  {feature.title}
+                </p>
+                <p className="text-green-600/70 text-xs mt-2 leading-relaxed">{feature.desc}</p>
+                <div className={`mt-3 text-xs text-green-500/0 group-hover:text-green-500/100 transition-colors ${
+                  hoveredFeature === feature.id ? "text-green-500" : ""
+                }`}>
+                  ➜ Click to learn more
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Call to Action Section */}
+        <div className="mb-12 text-center">
+          <div className="inline-block border border-green-600/50 bg-green-950/20 p-8 rounded backdrop-blur-sm">
+            <p className="text-green-500 font-mono text-sm mb-6">
+              Ready to interact with blockchain like never before?
+            </p>
+            <button
+              onClick={onEnter}
+              className="px-10 py-4 border-2 border-green-400 text-green-400 font-mono font-bold text-lg
+                hover:bg-green-400 hover:text-black hover:shadow-[0_0_20px_rgba(0,255,0,0.5)]
+                transition-all duration-300 transform hover:scale-105 active:scale-95"
+            >
+              $ ENTER TERMINAL
+            </button>
+            <p className="text-green-700/60 text-xs mt-4 font-mono">
+              Press Enter to initialize connection...
+            </p>
+          </div>
+        </div>
+
+        {/* Footer with Terminal-style Info */}
+        <div className="border-t border-green-700/30 pt-8 mt-8 text-center text-green-700/60 font-mono text-xs space-y-1 pb-8">
+          <p>█ Onchain PA v1.0.0 - Coinbase AgentKit Terminal</p>
+          <p>█ © 2024 Onchain Corp. All rights reserved.</p>
+          <p className="text-green-700/40">█ Network: Mainnet | Status: Online | Connection: Secure</p>
         </div>
       </div>
     </div>
