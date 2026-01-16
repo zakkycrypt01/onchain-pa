@@ -96,6 +96,57 @@ export async function createAgent(): Promise<Agent> {
           }
         },
       }),
+      listTransactionHistory: tool({
+        description: "List all transaction history for the wallet",
+        parameters: z.object({
+          limit: z.number().optional().describe("Maximum number of transactions to return (default: 10)"),
+          offset: z.number().optional().describe("Number of transactions to skip (default: 0)"),
+        }),
+        execute: async ({ limit = 10, offset = 0 }) => {
+          try {
+            const walletAddress = walletProvider.getAddress();
+            const networkId = walletProvider.getNetwork().networkId;
+            
+            // Get transaction history from the wallet
+            const history = await walletProvider.getTransactionHistory({
+              limit,
+              offset,
+            });
+            
+            if (!history || history.length === 0) {
+              return {
+                walletAddress,
+                networkId,
+                message: "No transactions found",
+                transactions: [],
+              };
+            }
+
+            return {
+              walletAddress,
+              networkId,
+              totalReturned: history.length,
+              limit,
+              offset,
+              transactions: history.map((tx: any) => ({
+                hash: tx.hash || tx.transactionHash,
+                from: tx.from,
+                to: tx.to,
+                value: tx.value,
+                gasUsed: tx.gasUsed,
+                gasPrice: tx.gasPrice,
+                status: tx.status,
+                blockNumber: tx.blockNumber,
+                timestamp: tx.timestamp,
+                type: tx.type,
+              })),
+            };
+          } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return `Error fetching transaction history: ${(error as any).message}`;
+          }
+        },
+      }),
     };
 
     agent = {
