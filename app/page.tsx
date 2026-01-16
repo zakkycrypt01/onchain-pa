@@ -29,7 +29,7 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
                 <path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold leading-tight tracking-tight uppercase">
+            <h2 className="text-base font-bold leading-tight tracking-tight uppercase">
               Onchain PA
             </h2>
           </div>
