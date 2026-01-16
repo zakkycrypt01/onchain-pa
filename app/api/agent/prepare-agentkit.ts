@@ -11,8 +11,10 @@ import {
   x402ActionProvider,
 } from "@coinbase/agentkit";
 import * as fs from "fs";
-import { Address, Hex, LocalAccount } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+
+// Commented out viem imports for server-side compatibility
+// import { Address, Hex, LocalAccount } from "viem";
+// import { privateKeyToAccount } from "viem/accounts";
 
 /**
  * AgentKit Integration Route
