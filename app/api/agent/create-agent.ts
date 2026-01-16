@@ -96,17 +96,6 @@ export async function createAgent(): Promise<Agent> {
           }
         },
       }),
-      // NFT and Token lookup tools
-      checkTokenBalance: tool({
-        description: "Check the balance of a specific token in the wallet",
-        parameters: z.object({
-          tokenAddress: z.string().describe("The token contract address"),
-          walletAddress: z.string().describe("The wallet address to check (optional)"),
-        }),
-        execute: async ({ tokenAddress, walletAddress }) => {
-          return `Checking balance for token ${tokenAddress} in wallet ${walletAddress || "current"}`;
-        },
-      }),
       // Transaction history tool
       getTransactionHistory: tool({
         description: "Retrieve recent transaction history for the wallet",
@@ -114,18 +103,18 @@ export async function createAgent(): Promise<Agent> {
           limit: z.number().optional().describe("Number of transactions to retrieve (default: 10)"),
         }),
         execute: async ({ limit = 10 }) => {
-          return `Fetching last ${limit} transactions from wallet history`;
+          return `Fetching last ${limit} transactions from wallet history. This includes swaps, transfers, and smart contract interactions.`;
         },
       }),
       // Market analysis tool
       analyzeMarket: tool({
         description: "Get market data and analysis for a specific token or pair",
         parameters: z.object({
-          tokenSymbol: z.string().describe("The token symbol (e.g., ETH, USDC)"),
+          tokenSymbol: z.string().describe("The token symbol (e.g., ETH, USDC, BASE)"),
           period: z.enum(["1h", "24h", "7d", "30d"]).describe("Time period for analysis"),
         }),
         execute: async ({ tokenSymbol, period }) => {
-          return `Market analysis for ${tokenSymbol} over ${period}: fetching price, volume, and trend data`;
+          return `Market analysis for ${tokenSymbol} over ${period}: Current price, 24h volume, market cap, and ${period} performance metrics`;
         },
       }),
       // Portfolio tool
@@ -133,44 +122,39 @@ export async function createAgent(): Promise<Agent> {
         description: "Get a complete summary of the wallet's portfolio including all tokens and their values",
         parameters: z.object({}).strict(),
         execute: async () => {
-          return `Generating portfolio summary with total value, token breakdown, and allocation percentages`;
+          return `Portfolio Summary: Total portfolio value, token breakdown by count and percentage, NFT holdings, and estimated gains/losses`;
         },
       }),
-      // Staking tool
-      stakeTokens: tool({
-        description: "Stake tokens to earn rewards (supports various protocols)",
+      // Gas optimization tool
+      estimateGasCost: tool({
+        description: "Estimate gas costs for a transaction before execution",
         parameters: z.object({
-          tokenAddress: z.string().describe("The token to stake"),
-          amount: z.string().describe("Amount to stake"),
-          protocol: z.enum(["aave", "lido", "curve", "yearn"]).optional().describe("Protocol to use for staking"),
+          transactionType: z.string().describe("Type of transaction (swap, transfer, stake, etc.)"),
+          amount: z.string().describe("Amount in the transaction"),
         }),
-        execute: async ({ tokenAddress, amount, protocol }) => {
-          return `Initiating staking transaction: ${amount} tokens at ${protocol || "default"} protocol`;
+        execute: async ({ transactionType, amount }) => {
+          return `Estimated gas cost for ${transactionType} of ${amount}: Standard, Fast, and Instant gas price options`;
         },
       }),
-      // Bridge tool
-      bridgeTokens: tool({
-        description: "Bridge tokens across different blockchains",
+      // Liquidity tool
+      checkLiquidity: tool({
+        description: "Check available liquidity for a trading pair or token",
         parameters: z.object({
-          tokenAddress: z.string().describe("Token to bridge"),
-          amount: z.string().describe("Amount to bridge"),
-          destinationChain: z.string().describe("Target blockchain (e.g., ethereum, arbitrum, polygon)"),
+          tokenPair: z.string().describe("Token pair (e.g., ETH/USDC)"),
+          amount: z.string().describe("Amount to check liquidity for"),
         }),
-        execute: async ({ tokenAddress, amount, destinationChain }) => {
-          return `Bridging ${amount} tokens to ${destinationChain}`;
+        execute: async ({ tokenPair, amount }) => {
+          return `Checking liquidity for ${amount} on ${tokenPair} across all available DEXs. Price impact and slippage estimates included.`;
         },
       }),
-      // Limit order tool
-      createLimitOrder: tool({
-        description: "Create a limit order to buy or sell tokens at a specific price",
+      // Smart recommendations tool
+      getSmartRecommendations: tool({
+        description: "Get AI-powered recommendations for optimizing token holdings and yield farming opportunities",
         parameters: z.object({
-          tokenIn: z.string().describe("Token to sell"),
-          tokenOut: z.string().describe("Token to buy"),
-          amountIn: z.string().describe("Amount to sell"),
-          minAmountOut: z.string().describe("Minimum amount to receive"),
+          riskLevel: z.enum(["low", "medium", "high"]).describe("Your risk tolerance"),
         }),
-        execute: async ({ tokenIn, tokenOut, amountIn, minAmountOut }) => {
-          return `Creating limit order: sell ${amountIn} ${tokenIn} for at least ${minAmountOut} ${tokenOut}`;
+        execute: async ({ riskLevel }) => {
+          return `Smart recommendations based on ${riskLevel} risk tolerance: yield farming opportunities, staking options, and portfolio rebalancing suggestions`;
         },
       }),
     };
