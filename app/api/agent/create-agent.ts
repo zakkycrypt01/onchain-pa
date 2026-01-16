@@ -60,7 +60,6 @@ export async function createAgent(): Promise<Agent> {
   const { agentkit, walletProvider } = await prepareAgentkitAndWalletProvider();
 
   try {
-    // Initialize LLM: https://platform.openai.com/docs/models#gpt-4o
   const model = google("gemini-2.5-flash");
 
     // Initialize Agent
@@ -105,6 +104,7 @@ export async function createAgent(): Promise<Agent> {
         execute: async ({ limit = 10 }) => {
           try {
             const walletDetails = await walletProvider.getWalletDetails?.();
+            const walletDetails = await walletProvider.getWalletDetails();
             const address = walletDetails?.address || "unknown";
             
             return {
@@ -127,7 +127,6 @@ export async function createAgent(): Promise<Agent> {
               ],
               note: "Use get_wallet_details to fetch actual transaction history from the blockchain"
             };
-          } catch (error) {
             return { error: "Failed to fetch transaction history", message: String(error) };
           }
         },
