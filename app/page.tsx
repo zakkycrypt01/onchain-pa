@@ -12,142 +12,166 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white selection:bg-blue-500 selection:text-white overflow-x-hidden">
       <FloatingCharacters />
 
       {/* Navigation */}
-      <nav className="relative z-50 border-b border-blue-500/20 px-6 lg:px-12 py-4 backdrop-blur-md sticky top-0">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 text-blue-400">
-            <div className="w-8 h-8 bg-blue-500 rounded-sm flex items-center justify-center font-bold">
-              PA
+      <nav className="relative z-50 border-b border-blue-500/20 px-6 lg:px-40 py-4 backdrop-blur-md sticky top-0 bg-black/50">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4 text-white">
+            <div className="w-8 h-8 text-blue-500 flex items-center justify-center">
+              <svg
+                fill="currentColor"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+              >
+                <path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" />
+              </svg>
             </div>
-            <span className="text-lg font-bold uppercase tracking-wide">Onchain PA</span>
+            <h2 className="text-xl font-bold leading-tight tracking-tight uppercase">
+              Onchain PA
+            </h2>
           </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-white/60 hover:text-blue-400 transition text-sm font-medium">
-              Features
-            </a>
-            <a href="#" className="text-white/60 hover:text-blue-400 transition text-sm font-medium">
-              Docs
-            </a>
-            <a href="#" className="text-white/60 hover:text-blue-400 transition text-sm font-medium">
-              Github
-            </a>
+
+          <div className="flex flex-1 justify-end gap-8">
+            <div className="hidden md:flex items-center gap-9">
+              <a
+                href="#"
+                className="text-white/70 hover:text-blue-500 transition-colors text-sm font-medium"
+              >
+                Features
+              </a>
+              <a
+                href="#"
+                className="text-white/70 hover:text-blue-500 transition-colors text-sm font-medium"
+              >
+                Docs
+              </a>
+              <a
+                href="#"
+                className="text-white/70 hover:text-blue-500 transition-colors text-sm font-medium"
+              >
+                Github
+              </a>
+            </div>
+            <button className="px-4 h-10 bg-blue-500 text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-all hover:scale-105 border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+              Connect Wallet
+            </button>
           </div>
-          <button className="px-6 py-2 bg-blue-500 text-white rounded text-sm font-bold hover:bg-blue-600 transition shadow-[0_0_15px_rgba(59,130,246,0.4)]">
-            Connect Wallet
-          </button>
         </div>
       </nav>
 
-      {/* Hero Section with Grid Background */}
-      <div className="relative flex-1 flex flex-col items-center justify-center px-6 lg:px-12 py-16">
-        <div
-          className="absolute inset-0 opacity-5 z-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px)",
-            backgroundSize: "40px 40px"
-          }}
-        ></div>
-
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
-            The Onchain{" "}
-            <span className="text-blue-400 italic">AI Terminal</span>
+      {/* Hero Section */}
+      <div
+        className="relative min-h-[70vh] flex flex-col items-center justify-center px-6 lg:px-40 py-20"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 0)",
+          backgroundSize: "40px 40px"
+        }}
+      >
+        <div className="max-w-[1200px] w-full text-center mb-12">
+          <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-4">
+            The Onchain <span className="text-blue-500 italic">AI Terminal</span>
           </h1>
-
-          <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed">
+          <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto font-light">
             Deploy, trade, and manage assets via a high-performance CLI agent.
             Autonomous, efficient, and direct to the protocol.
           </p>
+        </div>
 
-          {/* Terminal Window Mockup */}
-          <div className="bg-[#050505] rounded-xl border border-blue-500/30 overflow-hidden shadow-2xl mb-12 max-w-3xl mx-auto"
-            style={{
-              boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)"
-            }}>
-            {/* Terminal Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#111] border-b border-blue-500/20">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
-              </div>
-              <span className="text-[10px] text-white/30 uppercase tracking-widest font-mono">
-                onchain-pa-session --v1.0.4
-              </span>
-              <div className="w-3"></div>
+        {/* Terminal Window Mockup */}
+        <div
+          className="max-w-[900px] w-full bg-[#050505] rounded-xl border border-blue-500/30 overflow-hidden shadow-2xl relative"
+          style={{
+            boxShadow: "0 0 15px rgba(59, 130, 246, 0.3)"
+          }}
+        >
+          {/* Window Bar */}
+          <div className="flex items-center justify-between px-4 py-3 bg-[#111] border-b border-blue-500/20">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
             </div>
+            <span className="text-[10px] text-white/30 uppercase tracking-widest font-mono">
+              onchain-pa-session --v1.0.4
+            </span>
+            <div className="w-3"></div>
+          </div>
 
-            {/* Terminal Content */}
-            <div className="p-6 font-mono text-sm md:text-base min-h-80 relative overflow-hidden">
-              <div
-                className="absolute inset-0 pointer-events-none opacity-10"
-                style={{
-                  background:
-                    "linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(0, 0, 0, 0) 100%)",
-                  backgroundSize: "100% 100px"
-                }}
-              ></div>
+          {/* Terminal Content */}
+          <div className="p-6 font-mono text-sm md:text-base min-h-[300px] relative overflow-hidden">
+            <div
+              className="absolute inset-0 pointer-events-none opacity-10"
+              style={{
+                background:
+                  "linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(0, 0, 0, 0) 100%)",
+                backgroundSize: "100% 100px"
+              }}
+            ></div>
 
-              <div className="relative z-10 space-y-3">
-                <div className="flex gap-2">
-                  <span className="text-blue-400">root@onchain-pa:</span>
-                  <span className="text-white">init --agent=alpha-1</span>
-                </div>
+            <div className="relative z-10 space-y-2">
+              <div className="flex gap-2">
+                <span className="text-blue-500">root@onchain-pa:</span>
+                <span className="text-white">init --agent=alpha-1</span>
+              </div>
 
-                <div className="text-white/50 italic">
-                  [System] Initializing secure wallet enclave...
-                </div>
+              <div className="text-white/50 italic">
+                [System] Initializing secure wallet enclave...
+              </div>
 
-                <div className="text-green-400">[Success] Connection established with Ethereum Mainnet</div>
+              <div className="text-green-400">
+                [Success] Connection established with Ethereum Mainnet
+              </div>
 
-                <div className="flex gap-2 mt-4">
-                  <span className="text-blue-400">root@onchain-pa:</span>
-                  <span className="text-white">swap 10.0 ETH to USDC --slippage 0.5%</span>
-                </div>
+              <div className="flex gap-2 mt-4">
+                <span className="text-blue-500">root@onchain-pa:</span>
+                <span className="text-white">
+                  swap 10.0 ETH to USDC --slippage 0.5%
+                </span>
+              </div>
 
-                <div className="text-white/50 italic">
-                  [Processing] Calculating optimal routing across 14 DEXs...
-                </div>
+              <div className="text-white/50 italic">
+                [Processing] Calculating optimal routing across 14 DEXs...
+              </div>
 
-                <div className="text-white/80 leading-relaxed">
-                  &gt; Swap path: ETH -&gt; Uniswap v3 -&gt; Curve -&gt; USDC
-                  <br />
-                  &gt; Expected output: 24,420.12 USDC
-                  <br />
-                  &gt; Confirm execution? [Y/n]
-                </div>
+              <div className="text-white/80 leading-relaxed">
+                &gt; Swap path: ETH -&gt; Uniswap v3 -&gt; Curve -&gt; USDC
+                <br />
+                &gt; Expected output: 24,420.12 USDC
+                <br />
+                &gt; Confirm execution? [Y/n]
+              </div>
 
-                <div className="flex gap-2">
-                  <span className="text-blue-400">root@onchain-pa:</span>
-                  <span className="text-white">Y</span>
-                </div>
+              <div className="flex gap-2">
+                <span className="text-blue-500">root@onchain-pa:</span>
+                <span className="text-white">Y</span>
+              </div>
 
-                <div className="text-green-400">
-                  [Success] Tx hash: 0x4f2a...9b11 (Confirmed in 12s)
-                </div>
+              <div className="text-green-400">
+                [Success] Tx hash: 0x4f2a...9b11 (Confirmed in 12s)
+              </div>
 
-                <div className="flex gap-1 items-center mt-2">
-                  <span className="text-blue-400">root@onchain-pa:</span>
-                  <span
-                    className="w-2 h-5 bg-blue-400"
-                    style={{
-                      animation: "blink 1s step-start infinite"
-                    }}
-                  ></span>
-                </div>
+              <div className="flex gap-1 items-center mt-2">
+                <span className="text-blue-500">root@onchain-pa:</span>
+                <span
+                  className="w-2 h-5 bg-blue-500"
+                  style={{
+                    animation: "blink 1s step-start infinite"
+                  }}
+                ></span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Launch Button */}
+        {/* Launch Button */}
+        <div className="mt-12">
           <button
             onClick={onEnter}
-            className="px-8 py-3 bg-blue-500 text-white text-lg font-bold rounded hover:bg-blue-600 transition transform hover:scale-105 active:scale-95 shadow-[0_0_25px_rgba(59,130,246,0.5)]"
+            className="px-8 h-14 bg-blue-500 text-white text-lg font-bold rounded-lg hover:bg-blue-600 transition-all border border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]"
           >
             Launch Terminal
           </button>
@@ -155,23 +179,23 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* Capabilities Section */}
-      <div className="relative z-20 bg-black/50 border-t border-blue-500/20 px-6 lg:px-12 py-20">
-        <div className="max-w-7xl mx-auto">
+      <div className="w-full px-6 lg:px-40 py-24 bg-black border-t border-blue-500/20">
+        <div className="max-w-[1200px] w-full mx-auto">
           <div className="mb-16">
-            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight mb-4">
-              Capabilities <span className="text-blue-400">.exe</span>
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight uppercase mb-4">
+              Capabilities <span className="text-blue-500">.exe</span>
             </h2>
-            <p className="text-white/60 text-lg font-light max-w-2xl">
+            <p className="text-white/60 text-lg font-light max-w-[720px]">
               Your autonomous agent for the decentralized web.
             </p>
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 id: "contracts",
-                icon: "&lt;/&gt;",
+                icon: "< />",
                 title: "Smart Contracts",
                 desc: "Compile and deploy with natural language commands. Full verification and audit readiness directly via the CLI."
               },
@@ -192,17 +216,17 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
                 key={feature.id}
                 onMouseEnter={() => setHoveredFeature(feature.id)}
                 onMouseLeave={() => setHoveredFeature(null)}
-                className={`flex flex-col gap-4 rounded-xl border p-8 transition-all duration-300 ${
+                className={`flex flex-col gap-4 rounded-xl border p-8 transition-all ${
                   hoveredFeature === feature.id
-                    ? "border-blue-400 bg-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                    ? "border-blue-500/50 bg-blue-500/5"
                     : "border-blue-500/20 bg-blue-500/5 hover:border-blue-500/40"
                 }`}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl transition-colors ${
+                  className={`p-3 rounded-lg w-fit text-2xl transition-colors ${
                     hoveredFeature === feature.id
                       ? "bg-blue-500 text-white"
-                      : "bg-blue-500/20 text-blue-400"
+                      : "bg-blue-500/10 text-blue-500"
                   }`}
                 >
                   {feature.icon}
@@ -222,56 +246,65 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
       </div>
 
       {/* CTA Section */}
-      <div className="relative z-20 px-6 lg:px-12 py-20">
-        <div className="max-w-4xl mx-auto">
+      <div className="w-full px-6 lg:px-40 py-24 bg-black">
+        <div className="max-w-[1200px] mx-auto">
           <div
-            className="rounded-2xl border-2 border-blue-500/30 bg-black p-10 md:p-16 relative overflow-hidden"
+            className="flex flex-col md:flex-row items-center justify-between gap-8 rounded-2xl border-2 border-blue-500/30 bg-black p-10 md:p-16 relative overflow-hidden"
             style={{
               boxShadow: "0 0 50px rgba(59, 130, 246, 0.15)"
             }}
           >
             <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
 
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3">
+            <div className="relative z-10 text-center md:text-left">
+              <h2 className="text-3xl font-bold leading-tight mb-3">
                 Ready to go onchain?
               </h2>
-              <p className="text-white/60 text-lg mb-8 font-light">
+              <p className="text-white/60 text-lg font-light">
                 Initialize your personal AI agent and start trading today.
               </p>
+            </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={onEnter}
-                  className="px-8 py-3 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 transition"
-                >
-                  Initialize Session
-                </button>
-                <button className="px-8 py-3 border border-blue-500/30 text-white font-medium rounded hover:bg-white/5 transition">
-                  View Docs
-                </button>
-              </div>
+            <div className="relative z-10 flex gap-4 flex-col sm:flex-row">
+              <button
+                onClick={onEnter}
+                className="px-6 h-12 bg-blue-500 text-white text-base font-bold rounded-lg hover:bg-blue-600 transition-all whitespace-nowrap"
+              >
+                Initialize Session
+              </button>
+              <button className="px-6 h-12 border border-blue-500/30 text-white text-sm font-medium rounded-lg hover:bg-white/5 transition-colors whitespace-nowrap">
+                View Docs
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="relative z-20 border-t border-blue-500/10 px-6 lg:px-12 py-10 bg-black/50">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="w-full border-t border-blue-500/10 px-6 lg:px-40 py-10 bg-black">
+        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 text-white/40 text-xs font-mono uppercase tracking-widest">
-            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,1)]"></span>
+            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgb(59,130,246)]"></span>
             System Status: All chains operational
           </div>
 
           <div className="flex gap-8">
-            <a href="#" className="text-white/40 hover:text-white transition text-xs font-mono uppercase tracking-widest">
+            <a
+              href="#"
+              className="text-white/40 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest"
+            >
               Twitter / X
             </a>
-            <a href="#" className="text-white/40 hover:text-white transition text-xs font-mono uppercase tracking-widest">
+            <a
+              href="#"
+              className="text-white/40 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest"
+            >
               Discord
             </a>
-            <a href="#" className="text-white/40 hover:text-white transition text-xs font-mono uppercase tracking-widest">
+            <a
+              href="#"
+              className="text-white/40 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest"
+            >
               Legal
             </a>
           </div>
