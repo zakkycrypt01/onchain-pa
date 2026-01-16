@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 
 export interface TerminalCommand {
   id: string;
@@ -123,7 +124,13 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
           }}></div>
         </div>
         <span className="text-sm text-cyan-400 font-bold tracking-wider">{title} --{version}</span>
-        <div className="w-24"></div>
+        <Link
+          href="/settings"
+          className="px-3 py-1 text-xs text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/10 transition-colors"
+          title="Open Settings"
+        >
+          ⚙️ Settings
+        </Link>
       </div>
 
       {/* Terminal Output */}
