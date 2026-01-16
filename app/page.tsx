@@ -27,7 +27,7 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
         {/* Top Banner */}
         <div className="mb-12 text-center pt-8">
           <div className="inline-block mb-6 px-4 py-2 border border-green-600/40 text-green-500 text-xs font-mono bg-green-950/20">
-            > SYSTEM INITIALIZED
+            &gt; SYSTEM INITIALIZED
           </div>
         </div>
 
