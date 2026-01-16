@@ -43,16 +43,17 @@ let agent: Agent;
  * Initializes and returns an instance of the AI agent.
  * If an agent instance already exists, it returns the existing one.
  *
- * @function getOrInitializeAgent
- * @returns {Promise<ReturnType<typeof createReactAgent>>} The initialized AI agent.
+ * @function createAgent
+ * @param userPrivateKey - Optional private key for embedded wallet (Hex format: 0x...)
+ * @returns {Promise<Agent>} The initialized AI agent with embedded wallet.
  *
- * @description Handles agent setup
+ * @description Handles agent setup with client-side wallet management
  *
  * @throws {Error} If the agent initialization fails.
  */
-export async function createAgent(): Promise<Agent> {
-  // If agent has already been initialized, return it
-  if (agent) {
+export async function createAgent(userPrivateKey?: string): Promise<Agent> {
+  // If agent has already been initialized and no new private key provided, return it
+  if (agent && !userPrivateKey) {
     return agent;
   }
 
@@ -60,7 +61,7 @@ export async function createAgent(): Promise<Agent> {
     throw new Error("I need a GOOGLE_GENERATIVE_AI_API_KEY in your .env file...");
   }
 
-  const { agentkit, walletProvider } = await prepareAgentkitAndWalletProvider();
+  const { agentkit, walletProvider } = await prepareAgentkitAndWalletProvider(userPrivateKey);
 
   try {
     // Initialize LLM: https://platform.openai.com/docs/models#gpt-4o
