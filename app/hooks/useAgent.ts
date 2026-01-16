@@ -13,15 +13,25 @@ import { AgentRequest, AgentResponse } from "../types/api";
  */
 async function messageAgent(userMessage: string): Promise<string | null> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
     const response = await fetch("/api/agent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userMessage } as AgentRequest),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     const data = (await response.json()) as AgentResponse;
     return data.response ?? data.error ?? null;
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error("Request timeout - agent took too long to respond");
+      return "Request timeout. The agent is taking too long to process. Please try again.";
+    }
     console.error("Error communicating with agent:", error);
     return null;
   }
