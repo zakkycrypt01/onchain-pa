@@ -103,8 +103,8 @@ export async function createAgent(): Promise<Agent> {
         }),
         execute: async ({ limit = 10 }) => {
           try {
-            const walletDetails = await walletProvider.getWalletDetails?.();
-            const address = walletDetails?.address || "unknown";
+            const exportedWallet = await walletProvider.exportWallet();
+            const address = exportedWallet?.address || "unknown";
             
             return {
               status: "success",
@@ -168,11 +168,11 @@ export async function createAgent(): Promise<Agent> {
         parameters: z.object({}).strict(),
         execute: async () => {
           try {
-            const walletDetails = await walletProvider.getWalletDetails?.();
+            const exportedWallet = await walletProvider.exportWallet();
             const network = walletProvider.getNetwork();
             
             return {
-              walletAddress: walletDetails?.address || "unknown",
+              walletAddress: exportedWallet?.address || "unknown",
               network: network.networkId,
               portfolioSummary: {
                 totalValue: "$0.00",
