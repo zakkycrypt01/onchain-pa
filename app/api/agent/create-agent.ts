@@ -99,7 +99,6 @@ export async function createAgent(): Promise<Agent> {
           }
         },
       }),
-      }),
       processCommandInput: tool({
         description: "Process terminal-style commands and shortcuts. Expands aliases like 'tx', 'bal', 'wallet' into full queries",
         parameters: z.object({
