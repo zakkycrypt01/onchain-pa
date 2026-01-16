@@ -9,6 +9,11 @@ import {
   WalletProvider,
   wethActionProvider,
   x402ActionProvider,
+  swapActionProvider,
+  morphoActionProvider,
+  aaveActionProvider,
+  uniswapActionProvider,
+  liFiActionProvider,
 } from "@coinbase/agentkit";
 import * as fs from "fs";
 import { Address, Hex, LocalAccount } from "viem";
@@ -116,6 +121,11 @@ export async function prepareAgentkitAndWalletProvider(): Promise<{
         cdpApiActionProvider(),
         cdpSmartWalletActionProvider(),
         x402ActionProvider(),
+        swapActionProvider(),
+        morphoActionProvider(),
+        aaveActionProvider(),
+        uniswapActionProvider(),
+        liFiActionProvider(),
       ],
     });
 
