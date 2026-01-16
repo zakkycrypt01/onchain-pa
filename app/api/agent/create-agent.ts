@@ -103,18 +103,16 @@ export async function createAgent(): Promise<Agent> {
         }),
         execute: async ({ limit = 10 }) => {
           try {
-            const exportedWallet = await walletProvider.exportWallet();
-            const address = exportedWallet?.address || "unknown";
+            const network = walletProvider.getNetwork();
             
             return {
               status: "success",
-              walletAddress: address,
               transactionsRetrieved: limit,
-              network: walletProvider.getNetwork(),
+              network: network.networkId,
               transactionDetails: [
                 {
                   hash: "0x...",
-                  from: address,
+                  from: "0x...",
                   to: "0x...",
                   value: "0",
                   gasUsed: "21000",
@@ -124,7 +122,7 @@ export async function createAgent(): Promise<Agent> {
                   description: "Get full transaction details by querying the blockchain"
                 }
               ],
-              note: "Use get_wallet_details to fetch actual transaction history from the blockchain"
+              note: "Use get_wallet_details action from AgentKit to fetch actual transaction history"
             };
           } catch (error) {
             return { error: "Failed to fetch transaction history", message: String(error) };
@@ -168,11 +166,10 @@ export async function createAgent(): Promise<Agent> {
         parameters: z.object({}).strict(),
         execute: async () => {
           try {
-            const exportedWallet = await walletProvider.exportWallet();
             const network = walletProvider.getNetwork();
             
             return {
-              walletAddress: exportedWallet?.address || "unknown",
+              walletAddress: "Use get_wallet_details action",
               network: network.networkId,
               portfolioSummary: {
                 totalValue: "$0.00",
@@ -197,7 +194,7 @@ export async function createAgent(): Promise<Agent> {
                 byType: "Query blockchain for real holdings",
                 byRisk: "Analyze token risk profiles"
               },
-              note: "Use get_wallet_details action to fetch complete portfolio data"
+              note: "Use get_wallet_details action from AgentKit to fetch complete portfolio data"
             };
           } catch (error) {
             return { error: "Failed to fetch portfolio", message: String(error) };
