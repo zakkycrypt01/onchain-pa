@@ -8,6 +8,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import { createPublicClient, http } from "viem";
 import { baseSepolia } from "viem/chains";
+import { parseCommandInput, getHelpText, getShortcutByAlias } from "./command-shortcuts";
 
 // import type { LanguageModelV1, LanguageModelV1 as LanguageModel } from "ai";
 const execAsync = promisify(exec);
@@ -175,6 +176,49 @@ export async function createAgent(): Promise<Agent> {
           } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return `Error fetching transaction history: ${(error as any).message}`;
+          }
+        },
+      }),
+      processCommandInput: tool({
+        description: "Process terminal-style commands and shortcuts. Expands aliases like 'tx', 'bal', 'wallet' into full queries",
+        parameters: z.object({
+          input: z.string().describe("The command or shortcut to process"),
+        }),
+        execute: async ({ input }) => {
+          try {
+            // Check if it's a help command
+            if (["help", "h", "?"].includes(input.toLowerCase())) {
+              return getHelpText();
+            }
+
+            // Parse the command input to expand aliases
+            const expandedCommand = parseCommandInput(input);
+
+            // Check if the input was expanded (i.e., it was a shortcut)
+            const wasShortcut = expandedCommand !== input;
+
+            return {
+              success: true,
+              originalInput: input,
+              expandedCommand,
+              wasShortcut,
+              message: wasShortcut 
+                ? `Expanded shortcut to: "${expandedCommand}"` 
+                : "Shortcut not recognized, passing input as-is",
+              availableShortcuts: [
+                "tx, hist, transactions - List transaction history",
+                "bal, balance, b - Check wallet balance",
+                "wallet, details, w - Get wallet information",
+                "send, transfer - Send a transaction",
+                "swap, dex, d - Swap tokens on DEX",
+                "new, n - Create new transaction",
+                "clear, reset, c - Clear conversation",
+                "help, h, ? - Show help",
+              ],
+            };
+          } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return `Error processing command: ${(error as any).message}`;
           }
         },
       }),
