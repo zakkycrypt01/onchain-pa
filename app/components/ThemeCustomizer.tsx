@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { useThemeCustomization, type ThemeCustomization } from "@/app/hooks/useThemeCustomization";
 
