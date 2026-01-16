@@ -4,27 +4,24 @@ import {
   cdpSmartWalletActionProvider,
   erc20ActionProvider,
   pythActionProvider,
-  CdpSmartWalletProvider,
+  EmbeddedWalletProvider,
   walletActionProvider,
   WalletProvider,
   wethActionProvider,
   x402ActionProvider,
 } from "@coinbase/agentkit";
-import * as fs from "fs";
-import { Address, Hex, LocalAccount } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 
 /**
  * AgentKit Integration Route
  *
  * This file is your gateway to integrating AgentKit with your product.
- * It defines the core capabilities of your agent through WalletProvider
- * and ActionProvider configuration.
+ * It uses Embedded Wallet Provider for client-side key management.
  *
  * Key Components:
- * 1. WalletProvider Setup:
- *    - Configures the blockchain wallet integration
- *    - Learn more: https://github.com/coinbase/agentkit/tree/main/typescript/agentkit#evm-wallet-providers
+ * 1. Embedded WalletProvider Setup:
+ *    - Client-side wallet management
+ *    - Private keys never leave the browser
+ *    - Learn more: https://github.com/coinbase/agentkit/tree/main/typescript/agentkit#embedded-wallet-provider
  *
  * 2. ActionProviders Setup:
  *    - Defines the specific actions your agent can perform
@@ -43,66 +40,35 @@ import { privateKeyToAccount } from "viem/accounts";
  * - https://discord.gg/CDP
  */
 
-// Configure a file to persist the agent's Smart Wallet + Private Key data
-const WALLET_DATA_FILE = "wallet_data.txt";
-
-type WalletData = {
-  privateKey?: Hex;
-  smartWalletAddress: Address;
-  ownerAddress?: Address;
-};
-
 /**
- * Prepares the AgentKit and WalletProvider.
+ * Prepares the AgentKit and WalletProvider using Embedded Wallet.
  *
  * @function prepareAgentkitAndWalletProvider
- * @returns {Promise<{ agentkit: AgentKit, walletProvider: WalletProvider }>} The initialized AI agent.
+ * @param userPrivateKey - Optional private key for wallet recovery (Hex format)
+ * @returns {Promise<{ agentkit: AgentKit, walletProvider: WalletProvider }>} The initialized agent with embedded wallet.
  *
- * @description Handles agent setup
+ * @description Handles agent setup with client-side wallet management
  *
  * @throws {Error} If the agent initialization fails.
  */
-export async function prepareAgentkitAndWalletProvider(): Promise<{
+export async function prepareAgentkitAndWalletProvider(userPrivateKey?: string): Promise<{
   agentkit: AgentKit;
   walletProvider: WalletProvider;
 }> {
-  if (!process.env.CDP_API_KEY_ID || !process.env.CDP_API_KEY_SECRET) {
+  if (!process.env.NEXT_PUBLIC_CDP_API_KEY_ID) {
     throw new Error(
-      "I need both CDP_API_KEY_ID and CDP_API_KEY_SECRET in your .env file to connect to the Coinbase Developer Platform.",
+      "I need NEXT_PUBLIC_CDP_API_KEY_ID in your .env file to connect to the Coinbase Developer Platform using embedded wallet.",
     );
   }
 
-  let walletData: WalletData | null = null;
-  let owner: Hex | LocalAccount | undefined = undefined;
-
-  // Read existing wallet data if available
-  if (fs.existsSync(WALLET_DATA_FILE)) {
-    try {
-      walletData = JSON.parse(fs.readFileSync(WALLET_DATA_FILE, "utf8")) as WalletData;
-      if (walletData.ownerAddress) owner = walletData.ownerAddress;
-      else if (walletData.privateKey) owner = privateKeyToAccount(walletData.privateKey as Hex);
-      else
-        console.log(
-          `No ownerAddress or privateKey found in ${WALLET_DATA_FILE}, will create a new CDP server account as owner`,
-        );
-    } catch (error) {
-      console.error("Error reading wallet data:", error);
-    }
-  }
-
   try {
-    // Initialize WalletProvider: https://docs.cdp.coinbase.com/agentkit/docs/wallet-management
-    const walletProvider = await CdpSmartWalletProvider.configureWithWallet({
-      apiKeyId: process.env.CDP_API_KEY_ID,
-      apiKeySecret: process.env.CDP_API_KEY_SECRET,
-      walletSecret: process.env.CDP_WALLET_SECRET,
-      networkId: process.env.NETWORK_ID || "base-sepolia",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      owner: owner as any,
-      address: walletData?.smartWalletAddress,
-      paymasterUrl: process.env.PAYMASTER_URL, // Sponsor transactions: https://docs.cdp.coinbase.com/paymaster/docs/welcome
-      rpcUrl: process.env.RPC_URL,
-      idempotencyKey: process.env.IDEMPOTENCY_KEY,
+    // Initialize Embedded Wallet Provider for client-side key management
+    // https://docs.cdp.coinbase.com/agentkit/docs/wallet-management#embedded-wallet
+    const walletProvider = await EmbeddedWalletProvider.configure({
+      apiKeyId: process.env.NEXT_PUBLIC_CDP_API_KEY_ID,
+      networkId: process.env.NEXT_PUBLIC_NETWORK_ID || "base-sepolia",
+      privateKey: userPrivateKey, // Optional: pass existing private key to recover wallet
+      rpcUrl: process.env.NEXT_PUBLIC_RPC_URL,
     });
 
     // Initialize AgentKit: https://docs.cdp.coinbase.com/agentkit/docs/agent-actions
@@ -119,21 +85,9 @@ export async function prepareAgentkitAndWalletProvider(): Promise<{
       ],
     });
 
-    // Save wallet data
-    if (!walletData) {
-      const exportedWallet = await walletProvider.exportWallet();
-      fs.writeFileSync(
-        WALLET_DATA_FILE,
-        JSON.stringify({
-          ownerAddress: exportedWallet.ownerAddress,
-          smartWalletAddress: exportedWallet.address,
-        } as WalletData),
-      );
-    }
-
     return { agentkit, walletProvider };
   } catch (error) {
-    console.error("Error initializing agent:", error);
-    throw new Error("Failed to initialize agent");
+    console.error("Error initializing agent with embedded wallet:", error);
+    throw new Error("Failed to initialize agent with embedded wallet");
   }
 }
