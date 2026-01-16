@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jetbrainsMono.variable} font-mono bg-black text-green-500 min-h-screen flex flex-col antialiased selection:bg-green-500 selection:text-black overflow-hidden`}
+        className={`${jetbrainsMono.variable} font-mono bg-black text-green-500 min-h-screen flex flex-col antialiased selection:bg-green-500 selection:text-black`}
       >
         {children}
       </body>

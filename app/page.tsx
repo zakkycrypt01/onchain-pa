@@ -12,7 +12,7 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-blue-500 selection:text-white overflow-x-hidden">
+    <div className="w-full bg-black text-white selection:bg-blue-500 selection:text-white">
       <FloatingCharacters />
 
       {/* Navigation */}
