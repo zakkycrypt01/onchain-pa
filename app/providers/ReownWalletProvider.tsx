@@ -9,14 +9,22 @@ interface ReownWalletProviderProps {
 
 /**
  * Reown Wallet Provider - enables WalletConnect wallet connections
- * Initializes AppKit on client mount
+ * Initializes AppKit on client mount and renders the modal
  */
 export const ReownWalletProvider: React.FC<ReownWalletProviderProps> = ({ children }) => {
   useEffect(() => {
+    // Initialize AppKit when component mounts
     initializeAppKit();
   }, []);
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {/* AppKit Modal - this is where the wallet connection UI will render */}
+      {/* @ts-ignore */}
+      <w3m-modal />
+    </>
+  );
 };
 
 /**
@@ -49,24 +57,17 @@ export function useReownWallet() {
  * Hook to open the wallet modal
  */
 export function useReownModal() {
-  try {
-    // Import hook after AppKit is initialized
-    const { useAppKit } = require("@reown/appkit/react");
-    const appKit = useAppKit();
-    
-    if (!appKit?.open) {
-      throw new Error("AppKit not properly initialized");
-    }
-
-    return {
-      openModal: () => appKit.open(),
-    };
-  } catch (error) {
-    console.warn("Reown modal not available:", error);
-    return {
-      openModal: () => alert("Please connect a wallet using the modal"),
-    };
-  }
+  return {
+    openModal: () => {
+      try {
+        const { useAppKit } = require("@reown/appkit/react");
+        const { open } = useAppKit();
+        open?.();
+      } catch (error) {
+        console.warn("Failed to open modal:", error);
+      }
+    },
+  };
 }
 
 export default ReownWalletProvider;
