@@ -4,12 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import { useAgent } from "./hooks/useAgent";
 import ReactMarkdown from "react-markdown";
 import FloatingCharacters from "./components/FloatingCharacters";
+import ConnectWalletButton from "./components/ConnectWalletButton";
+import { useWalletSession } from "./hooks/useWalletSession";
 
 /**
  * Landing Page Component
  */
 function LandingPage({ onEnter }: { onEnter: () => void }) {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
+  const { session } = useWalletSession();
 
   return (
     <div className="w-full bg-black text-white selection:bg-blue-500 selection:text-white">
@@ -55,9 +58,14 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
                 Github
               </a>
             </div>
-            <button className="px-4 h-10 bg-blue-500 text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-all hover:scale-105 border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-              Connect Wallet
-            </button>
+            {session ? (
+              <div className="px-4 h-10 bg-green-500/20 text-green-400 text-sm font-bold rounded-lg border border-green-500/50 flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                {session.displayName}
+              </div>
+            ) : (
+              <ConnectWalletButton />
+            )}
           </div>
         </div>
       </nav>
