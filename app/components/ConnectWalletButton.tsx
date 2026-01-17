@@ -14,31 +14,79 @@ export const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
   size = "md",
 }) => {
   const [isReady, setIsReady] = useState(false);
+  const [appKit, setAppKit] = useState<any>(null);
 
   useEffect(() => {
-    // Check if AppKit is ready
-    const checkAppKit = () => {
-      try {
-        const { useAppKit } = require("@reown/appkit/react");
-        setIsReady(true);
-      } catch (error) {
-        console.warn("AppKit not ready yet");
+    // Wait for AppKit to be initialized
+    const waitForAppKit = async () => {
+      let attempts = 0;
+      const maxAttempts = 20; // 2 seconds total
+
+      while (attempts < maxAttempts) {
+        try {
+          const appKitModule = await import("@reown/appkit");
+          const modal = (appKitModule as any).modal;
+
+          if (modal) {
+            setAppKit(modal);
+            setIsReady(true);
+            console.log("[ConnectWalletButton] AppKit modal ready");
+            break;
+          }
+        } catch (error) {
+          // AppKit not ready yet
+        }
+
+        attempts++;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      // Also try accessing via window
+      if (attempts === maxAttempts) {
+        try {
+          const w3mModal = (window as any).w3mModal || (window as any).w3m;
+          if (w3mModal) {
+            setAppKit(w3mModal);
+            setIsReady(true);
+            console.log("[ConnectWalletButton] AppKit found via window");
+          }
+        } catch (error) {
+          console.warn("[ConnectWalletButton] AppKit not found", error);
+        }
       }
     };
 
-    // Try immediately
-    checkAppKit();
-
-    // Also try after a short delay for initialization
-    const timer = setTimeout(checkAppKit, 500);
-    return () => clearTimeout(timer);
+    waitForAppKit();
   }, []);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     try {
-      const { useAppKit } = require("@reown/appkit/react");
-      const appKit = useAppKit();
-      appKit?.open?.();
+      // Try direct modal open
+      const modal = (window as any).w3mModal;
+      if (modal?.open) {
+        modal.open();
+        return;
+      }
+
+      // Fallback: try via appKit state
+      if (appKit?.open) {
+        appKit.open();
+        return;
+      }
+
+      // Last resort: try dynamic import
+      try {
+        const appKitModule = await import("@reown/appkit");
+        const modal = (appKitModule as any).modal;
+        if (modal?.open) {
+          modal.open();
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to import AppKit:", e);
+      }
+
+      alert("Failed to open wallet connect. Please refresh the page.");
     } catch (error) {
       console.error("Failed to open wallet modal:", error);
       alert("Failed to open wallet connect. Please refresh the page.");
@@ -63,7 +111,7 @@ export const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
       onClick={handleClick}
       disabled={!isReady}
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className} ${
-        !isReady ? "opacity-50 cursor-not-allowed" : ""
+        !isReady ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
       }`}
     >
       {isReady ? "Connect Wallet" : "Loading..."}
