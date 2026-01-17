@@ -1,7 +1,7 @@
 import { AgentRequest, AgentResponse } from "@/app/types/api";
 import { NextResponse } from "next/server";
 import { createAgent } from "./create-agent";
-import { Message, generateId, generateText, LanguageModel, Tool, ToolExecutionOptions } from "ai";
+import { Message, generateId, generateText, LanguageModel, Tool } from "ai";
 
 const messages: Message[] = [];
 
@@ -16,13 +16,8 @@ function wrapToolsForJsonResponse(
   for (const [toolName, tool] of Object.entries(tools)) {
     wrappedTools[toolName] = {
       ...tool,
-      execute: tool.execute ? async (input: any, options?: ToolExecutionOptions) => {
-        // Provide default options if not supplied
-        const toolOptions: ToolExecutionOptions = options || {
-          toolCallId: '',
-          messages: [],
-        };
-        const result = await tool.execute!(input, toolOptions);
+      execute: async (input: any) => {
+        const result = await tool.execute(input);
 
         // Convert string results to JSON objects
         if (typeof result === "string") {
@@ -78,7 +73,7 @@ function wrapToolsForJsonResponse(
         }
 
         return result;
-      } : undefined,
+      },
     };
   }
 
