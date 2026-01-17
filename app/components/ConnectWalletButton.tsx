@@ -1,5 +1,4 @@
 import React from "react";
-import { useReownModal } from "@/app/providers/ReownWalletProvider";
 
 interface ConnectWalletButtonProps {
   className?: string;
@@ -12,8 +11,6 @@ export const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
   variant = "primary",
   size = "md",
 }) => {
-  const { openModal } = useReownModal();
-
   const baseClasses = "font-mono font-semibold rounded transition-all";
 
   const variantClasses = {
@@ -28,12 +25,16 @@ export const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
   };
 
   return (
-    <button
-      onClick={() => openModal()}
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-    >
-      Connect Wallet
-    </button>
+    <>
+      {/* AppKit Modal Button - use the built-in w3m-connect-button */}
+      <w3m-connect-button
+        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+        style={{
+          display: "inline-block",
+          padding: sizeClasses[size].includes("px-3") ? "0.25rem 0.75rem" : sizeClasses[size].includes("px-4") ? "0.5rem 1rem" : "0.75rem 1.5rem",
+        }}
+      />
+    </>
   );
 };
 
