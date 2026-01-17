@@ -17,7 +17,7 @@ function wrapToolsForJsonResponse(
     wrappedTools[toolName] = {
       ...tool,
       execute: tool.execute ? async (input: any, options?: ToolExecutionOptions) => {
-        const result = await tool.execute!(input, options);
+        const result = await tool.execute!(input, options || {});
 
         // Convert string results to JSON objects
         if (typeof result === "string") {
@@ -73,7 +73,7 @@ function wrapToolsForJsonResponse(
         }
 
         return result;
-      },
+      } : undefined,
     };
   }
 
