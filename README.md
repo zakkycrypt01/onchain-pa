@@ -41,9 +41,6 @@ cp .env.local .env.local
 # Required: Google Generative AI
 GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 
-# Optional: Fallback API key for rate limit resilience (recommended for production)
-GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK=your_fallback_api_key_here
-
 # Required: Coinbase Developer Platform
 CDP_API_KEY_ID=your_key_id
 CDP_API_KEY_SECRET=your_key_secret
@@ -52,8 +49,6 @@ CDP_WALLET_SECRET=your_wallet_secret
 # Optional: Network configuration
 NETWORK_ID=base-sepolia
 ```
-
-> **Production Tip**: Configure `GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK` to handle API rate limits gracefully. When the primary key hits quota limits, the system logs warnings and provides better error messages to users.
 
 4. Run the development server:
 
