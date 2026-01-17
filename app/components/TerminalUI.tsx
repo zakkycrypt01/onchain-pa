@@ -172,8 +172,9 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
       background: "linear-gradient(135deg, #0a0e27 0%, #16213e 100%)"
     }}>
       {/* Header */}
-      <div className="bg-gray-900 border-b border-cyan-500/50 px-4 py-3 flex items-center justify-between" style={{
-        boxShadow: "0 0 20px rgba(34, 211, 238, 0.1)"
+      <div className="bg-gray-900 border-b px-4 py-3 flex items-center justify-between" style={{
+        borderColor: `${theme.primaryColor}80`,
+        boxShadow: `0 0 20px ${theme.primaryColor}20`
       }}>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg" style={{
@@ -186,10 +187,14 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
             boxShadow: "0 0 8px rgba(34, 197, 94, 0.6)"
           }}></div>
         </div>
-        <span className="text-sm text-cyan-400 font-bold tracking-wider">{title} --{version}</span>
+        <span style={{ color: theme.primaryColor }} className="text-sm font-bold tracking-wider">{title} --{version}</span>
         <div className="flex items-center gap-4">
           {currentUser && (
-            <div className="flex flex-col gap-1 px-3 py-2 rounded border border-green-500/50 bg-green-500/10">
+            <div className="flex flex-col gap-1 px-3 py-2 rounded" style={{ 
+              borderColor: `${theme.successColor}80`,
+              backgroundColor: `${theme.successColor}20`,
+              borderWidth: 1
+            }}>
               <div className="flex items-center gap-2">
                 {currentUser.pfpUrl && (
                   <img
@@ -198,12 +203,12 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
                     className="w-5 h-5 rounded-full"
                   />
                 )}
-                <span className="text-xs text-green-400 font-bold">
+                <span style={{ color: theme.successColor }} className="text-xs font-bold">
                   {currentUser.displayName || currentUser.username || `User #${currentUser.userId}`}
                 </span>
               </div>
               {currentUser.walletAddress && (
-                <span className="text-xs text-green-300 font-mono truncate max-w-xs">
+                <span style={{ color: theme.successColor }} className="text-xs font-mono truncate max-w-xs opacity-80">
                   {currentUser.walletAddress.slice(0, 6)}...{currentUser.walletAddress.slice(-4)}
                 </span>
               )}
@@ -211,7 +216,8 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
           )}
           <Link
             href="/settings"
-            className="px-3 py-1 text-xs text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/10 transition-colors"
+            style={{ color: theme.primaryColor, borderColor: `${theme.primaryColor}80` }}
+            className="px-3 py-1 text-xs rounded hover:opacity-80 transition-opacity"
             title="Open Settings"
           >
             ⚙️ Settings
