@@ -187,17 +187,24 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
         <span className="text-sm text-cyan-400 font-bold tracking-wider">{title} --{version}</span>
         <div className="flex items-center gap-4">
           {currentUser && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded border border-green-500/50 bg-green-500/10">
-              {currentUser.pfpUrl && (
-                <img
-                  src={currentUser.pfpUrl}
-                  alt={currentUser.displayName || currentUser.username}
-                  className="w-6 h-6 rounded-full"
-                />
+            <div className="flex flex-col gap-1 px-3 py-2 rounded border border-green-500/50 bg-green-500/10">
+              <div className="flex items-center gap-2">
+                {currentUser.pfpUrl && (
+                  <img
+                    src={currentUser.pfpUrl}
+                    alt={currentUser.displayName || currentUser.username}
+                    className="w-5 h-5 rounded-full"
+                  />
+                )}
+                <span className="text-xs text-green-400 font-bold">
+                  {currentUser.displayName || currentUser.username || `User #${currentUser.userId}`}
+                </span>
+              </div>
+              {currentUser.walletAddress && (
+                <span className="text-xs text-green-300 font-mono truncate max-w-xs">
+                  {currentUser.walletAddress.slice(0, 6)}...{currentUser.walletAddress.slice(-4)}
+                </span>
               )}
-              <span className="text-xs text-green-400">
-                {currentUser.displayName || currentUser.username || `User #${currentUser.userId}`}
-              </span>
             </div>
           )}
           <Link
