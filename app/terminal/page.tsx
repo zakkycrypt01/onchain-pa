@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import TerminalUI, { TerminalManager } from "@/app/components/TerminalUI";
-import LoginModal from "@/app/components/LoginModal";
 import { parseCommandInput } from "@/app/api/agent/command-shortcuts";
-import { useUser } from "@/app/contexts/UserContext";
-import { useUserCommandHistory } from "@/app/hooks/useUserCommandHistory";
+import { COMMAND_TEMPLATES } from "@/app/utils/command-templates";
 
 const HELP_TEXT = `Available Commands:
   bal      - Check wallet balance
@@ -33,29 +30,6 @@ Keyboard Shortcuts:
   Ctrl+H   - Show help`;
 
 export default function TerminalPage() {
-  const router = useRouter();
-  const { user, isLoading } = useUser();
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  // Show login modal if not authenticated
-  if (!isLoading && !user) {
-    return (
-      <div className="w-full h-screen bg-gray-950 flex items-center justify-center" style={{
-        background: "linear-gradient(135deg, #0a0e27 0%, #16213e 100%)"
-      }}>
-        <LoginModal isOpen={true} onClose={() => setShowLoginModal(false)} />
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="w-full h-screen bg-gray-950 flex items-center justify-center text-cyan-400">
-        Loading...
-      </div>
-    );
-  }
-
   const addCommand = useCallback((cmd: any) => {
     // This is now handled by TerminalUI internally
   }, []);
