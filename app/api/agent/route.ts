@@ -120,43 +120,23 @@ export async function POST(
 
     // 4. Start streaming the agent's response
     messages.push({ id: generateId(), role: "user", content: userMessage });
-    
-    try {
-      const { text } = await generateText({
-        ...agent,
-        messages,
-      });
+    const { text } = await generateText({
+      ...agent,
+      messages,
+    });
 
-      // 5. Add the agent's response to the messages
-      messages.push({ id: generateId(), role: "assistant", content: text });
+    // 5. Add the agent's response to the messages
+    messages.push({ id: generateId(), role: "assistant", content: text });
 
-      // 6. Return the final response
-      return NextResponse.json({ response: text });
-    } catch (generateError) {
-      // If we get a rate limit error and have a fallback key, log it for monitoring
-      if (
-        generateError instanceof Error &&
-        (generateError.message.includes("quota") || generateError.message.includes("429"))
-      ) {
-        console.warn(
-          "Primary API key rate limited. Fallback key would be used on retry.",
-          generateError.message
-        );
-        throw generateError; // Will be caught by outer catch block
-      }
-      throw generateError;
-    }
+    // 6. Return the final response
+    return NextResponse.json({ response: text });
   } catch (error) {
     console.error("Error processing request:", error);
     
     // Handle specific error types
     if (error instanceof Error) {
-      const errorMsg = error.message.toLowerCase();
-      
       // Rate limit or quota errors
-      if (errorMsg.includes("quota") || errorMsg.includes("429") || errorMsg.includes("rate_limit")) {
-        const hasFallback = process.env.GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK ? " (Fallback key available)" : " (No fallback configured)";
-        console.warn(`Rate limit hit:${hasFallback}`);
+      if (error.message.includes("quota") || error.message.includes("429")) {
         return NextResponse.json(
           {
             error: "API rate limit exceeded. Please wait a moment and try again.",
@@ -167,22 +147,12 @@ export async function POST(
       }
       
       // Network/connection errors
-      if (errorMsg.includes("econnrefused") || errorMsg.includes("network")) {
+      if (error.message.includes("ECONNREFUSED") || error.message.includes("network")) {
         return NextResponse.json(
           {
             error: "Connection error. Please check your internet connection and try again.",
           },
           { status: 503 }
-        );
-      }
-      
-      // API key errors
-      if (errorMsg.includes("api key") || errorMsg.includes("unauthorized")) {
-        return NextResponse.json(
-          {
-            error: "API authentication failed. Please verify your API keys are configured correctly.",
-          },
-          { status: 401 }
         );
       }
     }
