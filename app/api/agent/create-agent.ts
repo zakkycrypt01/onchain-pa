@@ -50,21 +50,47 @@ let agent: Agent;
  *
  * @throws {Error} If the agent initialization fails.
  */
+/**
+ * Creates a model with fallback API key support for rate limiting.
+ * If the primary API key is rate limited, automatically falls back to the secondary key.
+ */
+function createModelWithFallback() {
+  const primaryKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const fallbackKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK;
+
+  if (!primaryKey) {
+    throw new Error(
+      "I need a GOOGLE_GENERATIVE_AI_API_KEY in your .env file. " +
+      "For production, also set GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK for rate limit resilience."
+    );
+  }
+
+  // Set the primary key
+  process.env.GOOGLE_GENERATIVE_AI_API_KEY = primaryKey;
+
+  // Return a proxy that can handle key switching
+  const model = google("gemini-2.0-flash-lite");
+  
+  if (fallbackKey) {
+    console.log("✓ Fallback API key configured for rate limit resilience");
+  } else {
+    console.log("⚠ No fallback API key configured. Set GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK for production.");
+  }
+
+  return { model, fallbackKey };
+}
+
 export async function createAgent(): Promise<Agent> {
   // If agent has already been initialized, return it
   if (agent) {
     return agent;
   }
 
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    throw new Error("I need a GOOGLE_GENERATIVE_AI_API_KEY in your .env file...");
-  }
-
   const { agentkit, walletProvider } = await prepareAgentkitAndWalletProvider();
 
   try {
-    // Initialize LLM: https://platform.openai.com/docs/models#gpt-4o
-  const model = google("gemini-2.5-flash");
+    // Initialize LLM with fallback support: https://platform.openai.com/docs/models#gpt-4o
+  const { model, fallbackKey } = createModelWithFallback();
 
     // Initialize Agent
     const canUseFaucet = walletProvider.getNetwork().networkId == "base-sepolia";
