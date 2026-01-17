@@ -9,6 +9,7 @@ export interface FarcasterUser {
   displayName?: string;
   pfpUrl?: string;
   bio?: string;
+  walletAddress?: string;
 }
 
 export function useFarcasterUser() {
@@ -30,7 +31,22 @@ export function useFarcasterUser() {
           // Get context and extract user info
           const context = await sdk.context;
           if (context?.user) {
-            setUser(context.user);
+            // Try to get wallet address if available
+            let walletAddress: string | undefined;
+            try {
+              // The wallet is typically provided through the SDK context or via the Base app
+              // Note: This depends on the hosting client implementation
+              if (context.user && (context.user as any).wallet) {
+                walletAddress = (context.user as any).wallet.address;
+              }
+            } catch (walletError) {
+              console.warn('Could not retrieve wallet address:', walletError);
+            }
+
+            setUser({
+              ...context.user,
+              walletAddress,
+            });
           }
         } else {
           setError('Not running in Farcaster Mini App');
@@ -52,5 +68,6 @@ export function useFarcasterUser() {
     isLoading,
     error,
     userId: user?.fid.toString() || null,
+    walletAddress: user?.walletAddress,
   };
 }
