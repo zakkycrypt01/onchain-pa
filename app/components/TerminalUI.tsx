@@ -44,6 +44,21 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
     if (!input.trim() || isProcessing) return;
 
     const userCommand = input.trim();
+    
+    // Check if it's a clear command
+    const baseCommand = userCommand.split(/\s+/)[0].toLowerCase();
+    if (baseCommand === "clear") {
+      setCommands([
+        {
+          id: "0",
+          type: "prompt",
+          content: `${title} --${version}`,
+        },
+      ]);
+      setInput("");
+      return;
+    }
+
     addCommand({
       id: Date.now().toString(),
       type: "command",
