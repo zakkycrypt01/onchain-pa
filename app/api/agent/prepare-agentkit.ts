@@ -11,7 +11,6 @@ import {
   x402ActionProvider,
 } from "@coinbase/agentkit";
 import * as fs from "fs";
-import { createBaseMiniAppWalletProvider, getBaseMiniAppWalletContext } from "./base-miniapp-wallet";
 
 // Commented out viem imports for server-side compatibility
 // import { Address, Hex, LocalAccount } from "viem";
