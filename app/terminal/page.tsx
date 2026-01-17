@@ -6,6 +6,8 @@ import { parseCommandInput } from "@/app/api/agent/command-shortcuts";
 import { COMMAND_TEMPLATES } from "@/app/utils/command-templates";
 import { useFarcasterUser } from "@/app/hooks/useFarcasterUser";
 import { useUserContext } from "@/app/providers/UserContext";
+import { useTransactionSigning } from "@/app/hooks/useTransactionSigning";
+import { parseTransactionFromResponse, extractTransactionHash } from "@/app/utils/transaction-utils";
 
 const HELP_TEXT = `Available Commands:
   bal      - Check wallet balance
@@ -32,8 +34,9 @@ Keyboard Shortcuts:
   Ctrl+H   - Show help`;
 
 export default function TerminalPage() {
-  const { user, isLoading } = useFarcasterUser();
+  const { user, isLoading, walletAddress } = useFarcasterUser();
   const { currentUser } = useUserContext();
+  const { signTransaction } = useTransactionSigning();
   const [terminalRef, setTerminalRef] = useState<any>(null);
   const [commands, setCommands] = useState<any[]>([]);
 
@@ -81,6 +84,57 @@ export default function TerminalPage() {
 
       // Extract response text from agent
       const responseText = data.response || data.message || "Command executed";
+      
+      // Check if the response contains transaction details to execute
+      // Look for patterns like transaction hashes, wallet operations, or specific keywords
+      if (
+        responseText.toLowerCase().includes("transaction") ||
+        responseText.toLowerCase().includes("would you like") ||
+        responseText.toLowerCase().includes("sign this") ||
+        /0x[a-fA-F0-9]{40}/.test(responseText)
+      ) {
+        // Try to parse transaction from response
+        const parsedTx = parseTransactionFromResponse(responseText);
+        
+        if (parsedTx && walletAddress) {
+          console.log("[Terminal] Detected transaction, attempting to sign:", parsedTx);
+          
+          // Automatically execute the transaction
+          const signResult = await signTransaction({
+            to: parsedTx.to,
+            value: parsedTx.value,
+            data: parsedTx.data,
+            type: parsedTx.type,
+            description: parsedTx.description,
+            userWalletAddress: walletAddress,
+            userMessage: input,
+          });
+
+          if (signResult && signResult.success) {
+            const txDetails = [
+              `✓ Transaction executed successfully`,
+              `Type: ${parsedTx.type}`,
+              `To: ${parsedTx.to}`,
+              ...(parsedTx.value ? [`Amount: ${parsedTx.value}`] : []),
+              ...(signResult.transactionHash ? [`Hash: ${signResult.transactionHash}`] : []),
+              ...(signResult.message ? [signResult.message] : []),
+            ];
+
+            return {
+              success: true,
+              response: `${responseText}\n\nTransaction signed and submitted to the blockchain.`,
+              details: txDetails,
+            };
+          } else if (signResult && signResult.error) {
+            return {
+              success: false,
+              response: responseText,
+              details: [`Transaction signing failed: ${signResult.error}`],
+            };
+          }
+        }
+      }
+
       const details = data.details ? Object.entries(data.details).map(([k, v]) => `${k}: ${v}`) : undefined;
 
       return {
@@ -96,7 +150,7 @@ export default function TerminalPage() {
         response: errorMessage,
       };
     }
-  }, []);
+  }, [walletAddress, signTransaction]);
 
   if (isLoading) {
     return (
