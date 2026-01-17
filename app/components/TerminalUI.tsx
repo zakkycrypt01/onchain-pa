@@ -12,7 +12,7 @@ export interface TerminalCommand {
 interface TerminalUIProps {
   title?: string;
   version?: string;
-  onCommand?: (command: string) => Promise<void>;
+  onCommand?: (command: string) => Promise<{ success: boolean; response: string; details?: string[] }>;
 }
 
 export const TerminalUI: React.FC<TerminalUIProps> = ({
@@ -56,17 +56,20 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
 
     if (onCommand) {
       try {
-        await onCommand(userCommand);
+        const result = await onCommand(userCommand);
         addCommand({
           id: (Date.now() + 1).toString(),
-          type: "success",
-          content: "Command executed successfully",
+          type: result.success ? "success" : "error",
+          content: result.response,
+          details: result.details,
+          timestamp: new Date(),
         });
       } catch (error) {
         addCommand({
           id: (Date.now() + 2).toString(),
           type: "error",
           content: error instanceof Error ? error.message : "Unknown error",
+          timestamp: new Date(),
         });
       }
     }
