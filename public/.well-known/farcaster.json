@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Onchain Terminal PA",
+    "homeUrl": "https://your-domain.com",
+    "iconUrl": "https://your-domain.com/icon.png",
+    "splashImageUrl": "https://your-domain.com/splash.png",
+    "splashBackgroundColor": "#000000",
+    "subtitle": "Agent-powered onchain terminal",
+    "description": "Execute onchain actions with AgentKit through an interactive terminal interface powered by AI.",
+    "screenshotUrls": [
+      "https://your-domain.com/screenshot1.png",
+      "https://your-domain.com/screenshot2.png",
+      "https://your-domain.com/screenshot3.png"
+    ],
+    "primaryCategory": "social",
+    "tags": ["agent", "onchain", "terminal", "ai", "baseapp"],
+    "heroImageUrl": "https://your-domain.com/hero.png",
+    "tagline": "Execute onchain actions instantly",
+    "ogTitle": "Onchain Terminal PA",
+    "ogDescription": "Execute onchain actions with AgentKit through an interactive terminal interface.",
+    "ogImageUrl": "https://your-domain.com/og.png",
+    "noindex": false
+  }
+}
