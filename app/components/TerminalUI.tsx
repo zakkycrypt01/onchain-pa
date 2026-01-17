@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useUser } from "@/app/contexts/UserContext";
 
 export interface TerminalCommand {
   id: string;
@@ -171,25 +172,42 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
       <div className="bg-gray-900 border-b border-cyan-500/50 px-4 py-3 flex items-center justify-between" style={{
         boxShadow: "0 0 20px rgba(34, 211, 238, 0.1)"
       }}>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg" style={{
-            boxShadow: "0 0 8px rgba(239, 68, 68, 0.6)"
-          }}></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-lg" style={{
-            boxShadow: "0 0 8px rgba(234, 179, 8, 0.6)"
-          }}></div>
-          <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg" style={{
-            boxShadow: "0 0 8px rgba(34, 197, 94, 0.6)"
-          }}></div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg" style={{
+              boxShadow: "0 0 8px rgba(239, 68, 68, 0.6)"
+            }}></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-lg" style={{
+              boxShadow: "0 0 8px rgba(234, 179, 8, 0.6)"
+            }}></div>
+            <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg" style={{
+              boxShadow: "0 0 8px rgba(34, 197, 94, 0.6)"
+            }}></div>
+          </div>
+          {useUser && (() => {
+            const { user } = useUser();
+            return user ? (
+              <span className="text-xs text-green-400">👤 {user.username}</span>
+            ) : null;
+          })()}
         </div>
         <span className="text-sm text-cyan-400 font-bold tracking-wider">{title} --{version}</span>
-        <Link
-          href="/settings"
-          className="px-3 py-1 text-xs text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/10 transition-colors"
-          title="Open Settings"
-        >
-          ⚙️ Settings
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/account"
+            className="px-3 py-1 text-xs text-green-400 border border-green-500/50 rounded hover:bg-green-500/10 transition-colors"
+            title="Open Account"
+          >
+            👤 Account
+          </Link>
+          <Link
+            href="/settings"
+            className="px-3 py-1 text-xs text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/10 transition-colors"
+            title="Open Settings"
+          >
+            ⚙️ Settings
+          </Link>
+        </div>
       </div>
 
       {/* Terminal Output */}
