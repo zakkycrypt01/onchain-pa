@@ -7,6 +7,7 @@ export interface UserSession {
   username?: string;
   displayName?: string;
   pfpUrl?: string;
+  walletAddress?: string;
 }
 
 export interface UserCommandHistory {
