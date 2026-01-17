@@ -1,6 +1,6 @@
 import { AgentRequest, AgentResponse } from "@/app/types/api";
 import { NextResponse } from "next/server";
-import { createAgent, switchToFallbackKey } from "./create-agent";
+import { createAgent } from "./create-agent";
 import { Message, generateId, generateText, LanguageModel, Tool, ToolExecutionOptions } from "ai";
 
 const messages: Message[] = [];
@@ -126,62 +126,31 @@ export async function POST(
     // 4. Start streaming the agent's response
     messages.push({ id: generateId(), role: "user", content: userMessage });
     
-    let generationAttempt = 0;
-    const maxAttempts = 2; // Primary + fallback
-    let lastError: Error | null = null;
+    try {
+      const { text } = await generateText({
+        ...agent,
+        messages,
+      });
 
-    while (generationAttempt < maxAttempts) {
-      try {
-        // Get agent (will use fallback key on second attempt)
-        let currentAgent = await createAgent(generationAttempt > 0);
-        
-        // Wrap tools to convert string responses to JSON objects
-        currentAgent = {
-          ...currentAgent,
-          tools: wrapToolsForJsonResponse(currentAgent.tools),
-        };
+      // 5. Add the agent's response to the messages
+      messages.push({ id: generateId(), role: "assistant", content: text });
 
-        const { text } = await generateText({
-          ...currentAgent,
-          messages,
-        });
-
-        // 5. Add the agent's response to the messages
-        messages.push({ id: generateId(), role: "assistant", content: text });
-
-        // 6. Return the final response
-        return NextResponse.json({ response: text });
-      } catch (generateError) {
-        lastError = generateError as Error;
-        
-        // If we get a rate limit error and have a fallback key, try again
-        if (
-          generateError instanceof Error &&
-          (generateError.message.includes("quota") || 
-           generateError.message.includes("429") ||
-           generateError.message.includes("RESOURCE_EXHAUSTED"))
-        ) {
-          const hasFallback = process.env.GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK;
-          
-          if (generationAttempt === 0 && hasFallback) {
-            console.warn(
-              "Primary API key rate limited. Switching to fallback key."
-            );
-            switchToFallbackKey();
-            generationAttempt++;
-            continue; // Retry with fallback key
-          } else if (generationAttempt > 0) {
-            console.error("Fallback API key also rate limited");
-          }
-        }
-        
-        // No retry or retry failed
-        throw generateError;
+      // 6. Return the final response
+      return NextResponse.json({ response: text });
+    } catch (generateError) {
+      // If we get a rate limit error and have a fallback key, log it for monitoring
+      if (
+        generateError instanceof Error &&
+        (generateError.message.includes("quota") || generateError.message.includes("429"))
+      ) {
+        console.warn(
+          "Primary API key rate limited. Fallback key would be used on retry.",
+          generateError.message
+        );
+        throw generateError; // Will be caught by outer catch block
       }
+      throw generateError;
     }
-
-    // If we got here, throw the last error
-    throw lastError;
   } catch (error) {
     console.error("Error processing request:", error);
     
