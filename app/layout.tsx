@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import MiniAppProvider from "./components/MiniAppProvider";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -10,6 +11,20 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Onchain Terminal PA",
   description: "Terminal interface for AgentKit",
+  other: {
+    "fc:miniapp": JSON.stringify({
+      version: "next",
+      imageUrl: "https://your-domain.com/embed-image.png",
+      button: {
+        title: "Launch Terminal",
+        action: {
+          type: "launch_miniapp",
+          name: "Onchain Terminal PA",
+          url: "https://your-domain.com",
+        },
+      },
+    }),
+  },
 };
 
 /**
@@ -29,7 +44,9 @@ export default function RootLayout({
       <body
         className={`${jetbrainsMono.variable} font-mono bg-black text-green-500 min-h-screen flex flex-col antialiased selection:bg-green-500 selection:text-black`}
       >
-        {children}
+        <MiniAppProvider>
+          {children}
+        </MiniAppProvider>
       </body>
     </html>
   );
