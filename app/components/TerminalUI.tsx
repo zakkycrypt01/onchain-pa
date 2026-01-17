@@ -29,11 +29,46 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
   ]);
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const terminalEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [commands]);
+
+  const getCommandHistory = (): string[] => {
+    return commands
+      .filter((cmd) => cmd.type === "command")
+      .map((cmd) => cmd.content)
+      .reverse();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const history = getCommandHistory();
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHistoryIndex((prevIndex) => {
+        const newIndex = Math.min(prevIndex + 1, history.length - 1);
+        if (newIndex >= 0 && history[newIndex]) {
+          setInput(history[newIndex]);
+        }
+        return newIndex;
+      });
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHistoryIndex((prevIndex) => {
+        const newIndex = prevIndex - 1;
+        if (newIndex >= 0 && history[newIndex]) {
+          setInput(history[newIndex]);
+        } else if (newIndex < 0) {
+          setInput("");
+        }
+        return newIndex;
+      });
+    }
+  };
 
   const addCommand = (cmd: TerminalCommand) => {
     setCommands((prev) => [...prev, cmd]);
@@ -223,9 +258,14 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
       >
         <span className="text-green-400 font-bold flex-shrink-0">root@onchain-pa:~$</span>
         <input
+          ref={inputRef}
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => {
+            setInput(e.target.value);
+            setHistoryIndex(-1);
+          }}
+          onKeyDown={handleKeyDown}
           disabled={isProcessing}
           placeholder="Enter command or alias (type 'help' for shortcuts)"
           className="flex-1 bg-transparent outline-none text-white placeholder-gray-600 placeholder-opacity-50 font-mono text-sm"
