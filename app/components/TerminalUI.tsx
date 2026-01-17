@@ -13,12 +13,14 @@ interface TerminalUIProps {
   title?: string;
   version?: string;
   onCommand?: (command: string) => Promise<{ success: boolean; response: string; details?: string[] }>;
+  currentUser?: { userId: string; username?: string; displayName?: string; pfpUrl?: string } | null;
 }
 
 export const TerminalUI: React.FC<TerminalUIProps> = ({
   title = "ONCHAIN-PA-SESSION",
   version = "v1.0.4",
   onCommand,
+  currentUser,
 }) => {
   const [commands, setCommands] = useState<TerminalCommand[]>([
     {
@@ -183,13 +185,29 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
           }}></div>
         </div>
         <span className="text-sm text-cyan-400 font-bold tracking-wider">{title} --{version}</span>
-        <Link
-          href="/settings"
-          className="px-3 py-1 text-xs text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/10 transition-colors"
-          title="Open Settings"
-        >
-          ⚙️ Settings
-        </Link>
+        <div className="flex items-center gap-4">
+          {currentUser && (
+            <div className="flex items-center gap-2 px-3 py-1 rounded border border-green-500/50 bg-green-500/10">
+              {currentUser.pfpUrl && (
+                <img
+                  src={currentUser.pfpUrl}
+                  alt={currentUser.displayName || currentUser.username}
+                  className="w-6 h-6 rounded-full"
+                />
+              )}
+              <span className="text-xs text-green-400">
+                {currentUser.displayName || currentUser.username || `User #${currentUser.userId}`}
+              </span>
+            </div>
+          )}
+          <Link
+            href="/settings"
+            className="px-3 py-1 text-xs text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500/10 transition-colors"
+            title="Open Settings"
+          >
+            ⚙️ Settings
+          </Link>
+        </div>
       </div>
 
       {/* Terminal Output */}
