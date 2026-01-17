@@ -16,8 +16,11 @@ function wrapToolsForJsonResponse(
   for (const [toolName, tool] of Object.entries(tools)) {
     wrappedTools[toolName] = {
       ...tool,
-      execute: async (input: any) => {
-        const result = await tool.execute(input);
+      execute: async (input: any, options?: any) => {
+        if (!tool.execute) {
+          throw new Error(`Tool ${toolName} does not have an execute method`);
+        }
+        const result = await tool.execute(input, options);
 
         // Convert string results to JSON objects
         if (typeof result === "string") {
