@@ -87,12 +87,35 @@ export const CommandRenderer: React.FC<CommandRendererProps> = ({
       )}
 
       {command.details && (
-        <div className="ml-6 mt-1 space-y-1">
-          {command.details.map((detail, idx) => (
-            <div key={idx} className="text-xs text-gray-400 font-mono">
-              <span className="text-yellow-600">&gt;</span> {detail}
-            </div>
-          ))}
+        <div className="ml-6 mt-2 space-y-1">
+          {command.details.map((detail, idx) => {
+            // Format markdown-like content
+            const isHeader = detail.startsWith('**') && detail.endsWith('**');
+            const isBullet = detail.trim().startsWith('*');
+            const isCodeBlock = detail.includes('`');
+            
+            if (isHeader) {
+              return (
+                <div key={idx} className="text-sm text-cyan-300 font-bold mt-2 mb-1">
+                  {detail.replace(/\*\*/g, '')}
+                </div>
+              );
+            }
+            
+            if (isBullet) {
+              return (
+                <div key={idx} className="text-xs text-green-300 font-mono pl-2">
+                  {detail}
+                </div>
+              );
+            }
+            
+            return (
+              <div key={idx} className="text-xs text-gray-400 font-mono break-words">
+                <span className="text-yellow-600">&gt;</span> {detail}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
