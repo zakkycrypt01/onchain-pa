@@ -1,51 +1,21 @@
-import React, { ReactNode } from "react";
-import { createAppKit, useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+"use client";
 
-// Configure networks
-const networks: any = [
-  {
-    id: 8453,
-    name: "Base Mainnet",
-    currency: "ETH",
-    explorerUrl: "https://basescan.org",
-    rpcUrl: "https://mainnet.base.org",
-  },
-  {
-    id: 84532,
-    name: "Base Sepolia",
-    currency: "ETH",
-    explorerUrl: "https://sepolia.basescan.org",
-    rpcUrl: "https://sepolia.base.org",
-  },
-];
-
-// Get projectId from WalletConnect Cloud (https://cloud.walletconnect.com)
-const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "";
-
-if (!projectId) {
-  console.warn(
-    "WalletConnect Project ID not found. Please set NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID in .env.local"
-  );
-}
-
-// Create the AppKit
-createAppKit({
-  adapters: [],
-  networks,
-  projectId,
-  metadata: {
-    name: "Onchain PA",
-    description: "AI-powered onchain personal assistant with Base Mini App support",
-    url: "https://onchain-pa.vercel.app",
-    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-  },
-});
+import React, { ReactNode, useEffect } from "react";
+import { initializeAppKit } from "@/app/lib/appkit-init";
 
 interface ReownWalletProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Reown Wallet Provider - enables WalletConnect wallet connections
+ * Initializes AppKit on client mount
+ */
 export const ReownWalletProvider: React.FC<ReownWalletProviderProps> = ({ children }) => {
+  useEffect(() => {
+    initializeAppKit();
+  }, []);
+
   return <>{children}</>;
 };
 
@@ -54,25 +24,49 @@ export const ReownWalletProvider: React.FC<ReownWalletProviderProps> = ({ childr
  * Returns wallet address and connection state
  */
 export function useReownWallet() {
-  const { address, isConnected } = useAppKitAccount();
-  const { walletProvider } = useAppKitProvider("eip155");
+  try {
+    // Import hooks after AppKit is initialized
+    const { useAppKitAccount, useAppKitProvider } = require("@reown/appkit/react");
+    const { address, isConnected } = useAppKitAccount();
+    const { walletProvider } = useAppKitProvider("eip155");
 
-  return {
-    address,
-    isConnected,
-    walletProvider,
-  };
+    return {
+      address,
+      isConnected,
+      walletProvider,
+    };
+  } catch (error) {
+    console.warn("Reown wallet not available:", error);
+    return {
+      address: undefined,
+      isConnected: false,
+      walletProvider: undefined,
+    };
+  }
 }
 
 /**
  * Hook to open the wallet modal
  */
 export function useReownModal() {
-  const { open } = useAppKit();
+  try {
+    // Import hook after AppKit is initialized
+    const { useAppKit } = require("@reown/appkit/react");
+    const appKit = useAppKit();
+    
+    if (!appKit?.open) {
+      throw new Error("AppKit not properly initialized");
+    }
 
-  return {
-    openModal: open,
-  };
+    return {
+      openModal: () => appKit.open(),
+    };
+  } catch (error) {
+    console.warn("Reown modal not available:", error);
+    return {
+      openModal: () => alert("Please connect a wallet using the modal"),
+    };
+  }
 }
 
 export default ReownWalletProvider;
