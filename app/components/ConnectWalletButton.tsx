@@ -11,30 +11,34 @@ export const ConnectWalletButton: React.FC<ConnectWalletButtonProps> = ({
   variant = "primary",
   size = "md",
 }) => {
-  const baseClasses = "font-mono font-semibold rounded transition-all";
-
-  const variantClasses = {
-    primary: "bg-cyan-500 hover:bg-cyan-600 text-black",
-    secondary: "bg-gray-700 hover:bg-gray-600 text-cyan-400 border border-cyan-400",
-  };
-
-  const sizeClasses = {
-    sm: "px-3 py-1 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
-  };
-
   return (
-    <>
-      {/* AppKit Modal Button - use the built-in w3m-connect-button */}
-      <w3m-connect-button
-        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-        style={{
-          display: "inline-block",
-          padding: sizeClasses[size].includes("px-3") ? "0.25rem 0.75rem" : sizeClasses[size].includes("px-4") ? "0.5rem 1rem" : "0.75rem 1.5rem",
-        }}
-      />
-    </>
+    <style>{`
+      w3m-connect-button {
+        --w3m-font-family: 'JetBrains Mono', monospace !important;
+      }
+      
+      w3m-connect-button button {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+        color: #000 !important;
+        border: 1px solid #06b6d4 !important;
+        font-weight: 600 !important;
+        border-radius: 0.5rem !important;
+        transition: all 0.3s ease !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
+      }
+      
+      w3m-connect-button button:hover {
+        background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%) !important;
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.5) !important;
+        transform: scale(1.05) !important;
+      }
+      
+      w3m-connect-button button:active {
+        transform: scale(0.98) !important;
+      }
+    `}</style>
+    <w3m-connect-button className={className} />
   );
 };
 
