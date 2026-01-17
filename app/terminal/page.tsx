@@ -32,11 +32,8 @@ Keyboard Shortcuts:
 `;
 
 export default function TerminalPage() {
-  const [terminalRef, setTerminalRef] = useState<any>(null);
-  const [commands, setCommands] = useState<any[]>([]);
-
   const addCommand = useCallback((cmd: any) => {
-    setCommands((prev) => [...prev, cmd]);
+    // This is now handled by TerminalUI internally
   }, []);
 
   const handleCommand = useCallback(async (input: string): Promise<{ success: boolean; response: string; details?: string[] }> => {
@@ -49,21 +46,6 @@ export default function TerminalPage() {
       return {
         success: true,
         response: HELP_TEXT.trim(),
-      };
-    }
-
-    // Handle clear command locally
-    if (baseCommand === "clear") {
-      setCommands([
-        {
-          id: "0",
-          type: "prompt",
-          content: "ONCHAIN-PA-SESSION --v1.0.4",
-        },
-      ]);
-      return {
-        success: true,
-        response: "Terminal cleared",
       };
     }
 
@@ -107,7 +89,7 @@ export default function TerminalPage() {
         response: errorMessage,
       };
     }
-  }, [setCommands]);
+  }, []);
 
   return (
     <div className="w-full h-screen">
