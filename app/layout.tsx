@@ -3,6 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import MiniAppProvider from "./components/MiniAppProvider";
 import { UserProvider } from "./providers/UserContext";
+import { WalletProvider } from "./providers/WalletProvider";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -45,11 +46,13 @@ export default function RootLayout({
       <body
         className={`${jetbrainsMono.variable} font-mono bg-black text-green-500 min-h-screen flex flex-col antialiased selection:bg-green-500 selection:text-black`}
       >
-        <UserProvider>
-          <MiniAppProvider>
-            {children}
-          </MiniAppProvider>
-        </UserProvider>
+        <WalletProvider>
+          <UserProvider>
+            <MiniAppProvider>
+              {children}
+            </MiniAppProvider>
+          </UserProvider>
+        </WalletProvider>
       </body>
     </html>
   );
