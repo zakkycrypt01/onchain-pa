@@ -1,0 +1,7 @@
+declare namespace JSX {
+  interface IntrinsicElements {
+    "w3m-connect-button": any;
+    "w3m-button": any;
+    "w3m-modal": any;
+  }
+}
