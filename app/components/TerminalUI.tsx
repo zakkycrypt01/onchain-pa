@@ -315,8 +315,10 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
       </form>
 
       {/* Status Bar */}
-      <div className="bg-gray-900 border-t border-cyan-500/30 px-4 py-2 text-xs text-gray-500 flex justify-between items-center" style={{
-        backgroundColor: "rgba(0, 0, 0, 0.8)"
+      <div className="px-4 py-2 text-xs flex justify-between items-center" style={{
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        borderTop: `1px solid ${theme.primaryColor}40`,
+        color: theme.textColor
       }}>
         <div className="space-x-4 flex items-center">
           <span>Ready for input</span>
@@ -325,14 +327,15 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
           {currentUser && (
             <>
               <span>•</span>
-              <span className="text-green-400">User: {currentUser.username || `#${currentUser.userId}`}</span>
+              <span style={{ color: theme.successColor }}>User: {currentUser.username || `#${currentUser.userId}`}</span>
             </>
           )}
         </div>
         <div className="flex items-center gap-4">
           <Link
             href="/settings"
-            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+            style={{ color: theme.primaryColor }}
+            className="hover:opacity-80 transition-opacity"
             title="Open Settings"
           >
             ⚙️ Settings
