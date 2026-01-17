@@ -101,7 +101,7 @@ export async function prepareAgentkitAndWalletProvider(): Promise<{
       networkId: process.env.NETWORK_ID || "base-sepolia",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       owner: owner as any,
-      address: walletData?.smartWalletAddress,
+      address: walletData?.smartWalletAddress as `0x${string}` | undefined,
       paymasterUrl: process.env.PAYMASTER_URL, // Sponsor transactions: https://docs.cdp.coinbase.com/paymaster/docs/welcome
       rpcUrl: process.env.RPC_URL,
       idempotencyKey: process.env.IDEMPOTENCY_KEY,
@@ -145,3 +145,4 @@ export async function prepareAgentkitAndWalletProvider(): Promise<{
  *
  * This is the primary wallet provider for the agent running on the server.
  * For Base Mini App wallet integration, use the client-side Farcaster SDK directly.
+ */
