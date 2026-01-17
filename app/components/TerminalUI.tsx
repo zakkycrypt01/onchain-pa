@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useThemeCustomization } from "@/app/hooks/useThemeCustomization";
 
 export interface TerminalCommand {
   id: string;
@@ -22,6 +23,7 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
   onCommand,
   currentUser,
 }) => {
+  const { theme } = useThemeCustomization();
   const [commands, setCommands] = useState<TerminalCommand[]>([
     {
       id: "0",
@@ -135,24 +137,24 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
     setIsProcessing(false);
   };
 
-  const getCommandColor = (type: TerminalCommand["type"]): string => {
+  const getCommandColor = (type: TerminalCommand["type"]): React.CSSProperties => {
     switch (type) {
       case "command":
-        return "text-cyan-400";
+        return { color: theme.primaryColor };
       case "output":
-        return "text-gray-300";
+        return { color: theme.textColor };
       case "error":
-        return "text-red-500";
+        return { color: theme.dangerColor };
       case "success":
-        return "text-green-400";
+        return { color: theme.successColor };
       case "processing":
-        return "text-yellow-400";
+        return { color: theme.warningColor };
       case "system":
-        return "text-blue-400 italic";
+        return { color: theme.accentColor, fontStyle: "italic" };
       case "prompt":
-        return "text-cyan-400";
+        return { color: theme.primaryColor };
       default:
-        return "text-white";
+        return { color: theme.textColor };
     }
   };
 
@@ -225,19 +227,19 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
         {commands.map((cmd) => (
           <div key={cmd.id} className="group">
             {cmd.type === "prompt" ? (
-              <div className="text-cyan-400 text-sm font-bold">
+              <div style={{ color: theme.primaryColor }} className="text-sm font-bold">
                 {cmd.content}
               </div>
             ) : (
               <>
-                <div className={`text-sm ${getCommandColor(cmd.type)} flex items-start gap-2 hover:bg-white/5 px-2 py-1 rounded transition-colors`}>
+                <div style={{ color: getCommandColor(cmd.type).color }} className={`text-sm flex items-start gap-2 hover:bg-white/5 px-2 py-1 rounded transition-colors`}>
                   <span className="font-bold flex-shrink-0">
                     {getCommandPrefix(cmd.type, cmd.content)}
                   </span>
                   <span className="break-words flex-1">{cmd.content}</span>
                 </div>
                 {cmd.details && (
-                  <div className="ml-6 mt-2 space-y-1 text-gray-400">
+                  <div className="ml-6 mt-2 space-y-1" style={{ color: theme.textColor }}>
                     {cmd.details.map((detail, idx) => {
                       // Format markdown-like content
                       const isHeader = detail.startsWith('**') && detail.endsWith('**');
@@ -245,7 +247,7 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
                       
                       if (isHeader) {
                         return (
-                          <div key={idx} className="text-xs text-cyan-300 font-bold mt-2 mb-1">
+                          <div key={idx} style={{ color: theme.primaryColor }} className="text-xs font-bold mt-2 mb-1">
                             {detail.replace(/\*\*/g, '')}
                           </div>
                         );
@@ -253,15 +255,15 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
                       
                       if (isBullet) {
                         return (
-                          <div key={idx} className="text-xs text-green-300 font-mono pl-2 break-words">
+                          <div key={idx} style={{ color: theme.successColor }} className="text-xs font-mono pl-2 break-words">
                             {detail}
                           </div>
                         );
                       }
                       
                       return (
-                        <div key={idx} className="text-xs font-mono hover:text-gray-300 transition-colors break-words">
-                          <span className="text-yellow-600">&gt;</span> {detail}
+                        <div key={idx} className="text-xs font-mono hover:opacity-80 transition-opacity break-words">
+                          <span style={{ color: theme.warningColor }}>&gt;</span> {detail}
                         </div>
                       );
                     })}
@@ -281,7 +283,7 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
           boxShadow: "inset 0 1px 0 rgba(34, 211, 238, 0.1)"
         }}
       >
-        <span className="text-green-400 font-bold flex-shrink-0">root@onchain-pa:~$</span>
+        <span style={{ color: theme.successColor }} className="font-bold flex-shrink-0">root@onchain-pa:~$</span>
         <input
           ref={inputRef}
           type="text"
@@ -293,26 +295,42 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
           onKeyDown={handleKeyDown}
           disabled={isProcessing}
           placeholder="Enter command or alias (type 'help' for shortcuts)"
-          className="flex-1 bg-transparent outline-none text-white placeholder-gray-600 placeholder-opacity-50 font-mono text-sm"
+          style={{ 
+            color: theme.textColor,
+            backgroundColor: "transparent",
+            outlineWidth: 0
+          }}
+          className="flex-1 placeholder-gray-600 placeholder-opacity-50 font-mono text-sm"
           autoFocus
         />
         {isProcessing && (
-          <span className="text-yellow-400 animate-spin text-lg">⟳</span>
+          <span style={{ color: theme.warningColor }} className="animate-spin text-lg">⟳</span>
         )}
       </form>
 
       {/* Status Bar */}
-      <div className="bg-gray-900 border-t border-cyan-500/30 px-4 py-2 text-xs text-gray-500 flex justify-between" style={{
+      <div className="bg-gray-900 border-t border-cyan-500/30 px-4 py-2 text-xs text-gray-500 flex justify-between items-center" style={{
         backgroundColor: "rgba(0, 0, 0, 0.8)"
       }}>
-        <div className="space-x-4">
+        <div className="space-x-4 flex items-center">
           <span>Ready for input</span>
           <span>•</span>
-          <span>RAM: 256MB</span>
-          <span>•</span>
           <span>AGENT_CORE: ACTIVE</span>
+          {currentUser && (
+            <>
+              <span>•</span>
+              <span className="text-green-400">User: {currentUser.username || `#${currentUser.userId}`}</span>
+            </>
+          )}
         </div>
-        <div>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/settings"
+            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+            title="Open Settings"
+          >
+            ⚙️ Settings
+          </Link>
           <span>UTF-8</span>
         </div>
       </div>
