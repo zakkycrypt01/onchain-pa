@@ -72,11 +72,17 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
     if (onCommand) {
       try {
         const result = await onCommand(userCommand);
+        
+        // Split long responses into chunks for better readability
+        const content = result.response || "";
+        const lines = content.split('\n').filter(line => line.trim());
+        const details = result.details || [];
+        
         addCommand({
           id: (Date.now() + 1).toString(),
           type: result.success ? "success" : "error",
-          content: result.response,
-          details: result.details,
+          content: lines[0] || content, // First line as main content
+          details: lines.slice(1).concat(details), // Rest as details
           timestamp: new Date(),
         });
       } catch (error) {
@@ -171,16 +177,38 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
                   <span className="break-words flex-1">{cmd.content}</span>
                 </div>
                 {cmd.details && (
-                  <div className="ml-6 mt-1 space-y-1 text-gray-400">
-                    {cmd.details.map((detail, idx) => (
-                      <div key={idx} className="text-xs font-mono hover:text-gray-300 transition-colors">
-                        <span className="text-yellow-600">&gt;</span> {detail}
-                      </div>
-                    ))}
+                  <div className="ml-6 mt-2 space-y-1 text-gray-400">
+                    {cmd.details.map((detail, idx) => {
+                      // Format markdown-like content
+                      const isHeader = detail.startsWith('**') && detail.endsWith('**');
+                      const isBullet = detail.trim().startsWith('*');
+                      
+                      if (isHeader) {
+                        return (
+                          <div key={idx} className="text-xs text-cyan-300 font-bold mt-2 mb-1">
+                            {detail.replace(/\*\*/g, '')}
+                          </div>
+                        );
+                      }
+                      
+                      if (isBullet) {
+                        return (
+                          <div key={idx} className="text-xs text-green-300 font-mono pl-2 break-words">
+                            {detail}
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div key={idx} className="text-xs font-mono hover:text-gray-300 transition-colors break-words">
+                          <span className="text-yellow-600">&gt;</span> {detail}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </>
-            )}
+            )}}
           </div>
         ))}
         <div ref={terminalEndRef} />
