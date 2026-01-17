@@ -17,7 +17,12 @@ function wrapToolsForJsonResponse(
     wrappedTools[toolName] = {
       ...tool,
       execute: tool.execute ? async (input: any, options?: ToolExecutionOptions) => {
-        const result = await tool.execute!(input, options || {});
+        // Provide default options if not supplied
+        const toolOptions: ToolExecutionOptions = options || {
+          toolCallId: '',
+          messages: [],
+        };
+        const result = await tool.execute!(input, toolOptions);
 
         // Convert string results to JSON objects
         if (typeof result === "string") {
