@@ -5,8 +5,7 @@ import TerminalUI, { TerminalManager } from "@/app/components/TerminalUI";
 import { parseCommandInput } from "@/app/api/agent/command-shortcuts";
 import { COMMAND_TEMPLATES } from "@/app/utils/command-templates";
 
-const HELP_TEXT = `
-Available Commands:
+const HELP_TEXT = `Available Commands:
   bal      - Check wallet balance
   wallet   - Get wallet details
   tx       - View transaction history
@@ -28,8 +27,7 @@ Keyboard Shortcuts:
   Ctrl+L   - Clear terminal
   Ctrl+C   - Cancel command
   Up/Down  - Navigate history
-  Ctrl+H   - Show help
-`;
+  Ctrl+H   - Show help`;
 
 export default function TerminalPage() {
   const addCommand = useCallback((cmd: any) => {
@@ -43,9 +41,11 @@ export default function TerminalPage() {
 
     // Handle help command locally
     if (baseCommand === "help") {
+      const helpLines = HELP_TEXT.split('\n');
       return {
         success: true,
-        response: HELP_TEXT.trim(),
+        response: "Available Commands and Help",
+        details: helpLines,
       };
     }
 
