@@ -46,7 +46,8 @@ let agent: Agent;
  * @function getOrInitializeAgent
  * @returns {Promise<ReturnType<typeof createReactAgent>>} The initialized AI agent.
  *
- * @description Handles agent setup
+ * @description Handles agent setup. Attempts to use Base Mini App wallet if available,
+ * otherwise falls back to CDP wallet provider.
  *
  * @throws {Error} If the agent initialization fails.
  */
@@ -60,18 +61,44 @@ export async function createAgent(): Promise<Agent> {
     throw new Error("I need a GOOGLE_GENERATIVE_AI_API_KEY in your .env file...");
   }
 
-  const { agentkit, walletProvider } = await prepareAgentkitAndWalletProvider();
+  let agentkit: any;
+  let walletProvider: any;
+  let isBaseMiniApp = false;
+  let walletContext: any = null;
+
+  // Try to use Base Mini App wallet first
+  try {
+    console.log("[Agent] Attempting to initialize with Base Mini App wallet...");
+    const miniAppResult = await prepareAgentkitWithBaseMiniAppWallet();
+    agentkit = miniAppResult.agentkit;
+    walletProvider = miniAppResult.walletProvider;
+    walletContext = miniAppResult.walletContext;
+    isBaseMiniApp = true;
+    console.log("[Agent] Successfully initialized with Base Mini App wallet");
+  } catch (miniAppError) {
+    console.log("[Agent] Base Mini App wallet not available, using CDP wallet provider...");
+    // Fall back to CDP wallet provider
+    const cdpResult = await prepareAgentkitAndWalletProvider();
+    agentkit = cdpResult.agentkit;
+    walletProvider = cdpResult.walletProvider;
+  }
 
   try {
     // Initialize LLM: https://platform.openai.com/docs/models#gpt-4o
-  const model = google("gemini-2.5-flash");
+    const model = google("gemini-2.5-flash-lite");
 
     // Initialize Agent
-    const canUseFaucet = walletProvider.getNetwork().networkId == "base-sepolia";
+    const walletNetwork = walletProvider.getNetwork?.();
+    const canUseFaucet = walletNetwork?.networkId === "base-sepolia";
     const faucetMessage = `If you ever need funds, you can request them from the faucet.`;
     const cantUseFaucetMessage = `If you need funds, you can provide your wallet details and request funds from the user.`;
+    
+    const miniAppContext = isBaseMiniApp && walletContext 
+      ? `You are operating as a Base Mini App agent for user @${walletContext.username || walletContext.displayName} (FID: ${walletContext.fid}). `
+      : ``;
+    
     const system = `
-        You are a helpful agent that can interact onchain using the Coinbase Developer Platform AgentKit. You are 
+        ${miniAppContext}You are a helpful agent that can interact onchain using the Coinbase Developer Platform AgentKit. You are 
         empowered to interact onchain using your tools. ${canUseFaucet ? faucetMessage : cantUseFaucetMessage}.
         Before executing your first action, get the wallet details to see what network 
         you're on. If there is a 5XX (internal) HTTP error code, ask the user to try again later. If someone 
