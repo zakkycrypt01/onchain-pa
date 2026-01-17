@@ -54,43 +54,64 @@ let agent: Agent;
  * Creates a model with fallback API key support for rate limiting.
  * If the primary API key is rate limited, automatically falls back to the secondary key.
  */
-function createModelWithFallback() {
+function createModelWithFallback(usesFallback: boolean = false) {
   const primaryKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const fallbackKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK;
 
-  if (!primaryKey) {
+  if (!primaryKey && !fallbackKey) {
     throw new Error(
       "I need a GOOGLE_GENERATIVE_AI_API_KEY in your .env file. " +
       "For production, also set GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK for rate limit resilience."
     );
   }
 
-  // Set the primary key
-  process.env.GOOGLE_GENERATIVE_AI_API_KEY = primaryKey;
+  // Use fallback key if primary is rate limited
+  const activeKey = usesFallback && fallbackKey ? fallbackKey : primaryKey;
+  
+  if (!activeKey) {
+    throw new Error("No valid API key available");
+  }
 
-  // Return a proxy that can handle key switching
+  process.env.GOOGLE_GENERATIVE_AI_API_KEY = activeKey;
+
   const model = google("gemini-2.0-flash-lite");
   
-  if (fallbackKey) {
+  if (!usesFallback && fallbackKey) {
     console.log("✓ Fallback API key configured for rate limit resilience");
+  } else if (usesFallback) {
+    console.log("🔄 Switched to fallback API key due to rate limit");
   } else {
     console.log("⚠ No fallback API key configured. Set GOOGLE_GENERATIVE_AI_API_KEY_FALLBACK for production.");
   }
 
-  return { model, fallbackKey };
+  return { model, fallbackKey, usingFallback: usesFallback };
 }
 
-export async function createAgent(): Promise<Agent> {
-  // If agent has already been initialized, return it
-  if (agent) {
+/**
+ * Resets the agent instance to allow re-initialization with different settings
+ */
+export function resetAgent() {
+  agent = null as any;
+}
+
+/**
+ * Switches the agent to use the fallback API key
+ */
+export function switchToFallbackKey() {
+  resetAgent();
+}
+
+export async function createAgent(usesFallback: boolean = false): Promise<Agent> {
+  // If agent has already been initialized and not switching keys, return it
+  if (agent && !usesFallback) {
     return agent;
   }
 
   const { agentkit, walletProvider } = await prepareAgentkitAndWalletProvider();
 
   try {
-    // Initialize LLM with fallback support: https://platform.openai.com/docs/models#gpt-4o
-  const { model, fallbackKey } = createModelWithFallback();
+    // Initialize LLM with fallback support
+  const { model, fallbackKey } = createModelWithFallback(usesFallback);
 
     // Initialize Agent
     const canUseFaucet = walletProvider.getNetwork().networkId == "base-sepolia";
