@@ -1,7 +1,9 @@
 "use client";
 
 import { createAppKit } from "@reown/appkit";
+import { EthersAdapter } from "@reown/appkit-adapter-ethers";
 import { baseSepolia, base } from "@reown/appkit/networks";
+import { ethers } from "ethers";
 
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 
@@ -13,12 +15,20 @@ let isInitialized = false;
  */
 export function initializeAppKit() {
   if (isInitialized || !projectId) {
+    if (!projectId) {
+      console.warn("[AppKit] No project ID found - wallet connect disabled");
+    }
     return;
   }
 
   try {
-    createAppKit({
-      adapters: [],
+    // Create ethers adapter
+    const ethersAdapter = new EthersAdapter({
+      signerProvider: typeof window !== "undefined" ? new ethers.BrowserProvider(window.ethereum as any) : undefined,
+    });
+
+    const kit = createAppKit({
+      adapters: [ethersAdapter as any],
       networks: [base, baseSepolia],
       projectId,
       metadata: {
@@ -30,9 +40,11 @@ export function initializeAppKit() {
     });
 
     isInitialized = true;
-    console.log("[AppKit] Initialized successfully");
+    console.log("[AppKit] Initialized successfully with ethers adapter");
+    return kit;
   } catch (error) {
     console.error("[AppKit] Initialization failed:", error);
+    isInitialized = false;
   }
 }
 
