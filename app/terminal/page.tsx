@@ -4,6 +4,8 @@ import React, { useState, useCallback } from "react";
 import TerminalUI, { TerminalManager } from "@/app/components/TerminalUI";
 import { parseCommandInput } from "@/app/api/agent/command-shortcuts";
 import { COMMAND_TEMPLATES } from "@/app/utils/command-templates";
+import { useFarcasterUser } from "@/app/hooks/useFarcasterUser";
+import { useUserContext } from "@/app/providers/UserContext";
 
 const HELP_TEXT = `Available Commands:
   bal      - Check wallet balance
@@ -30,6 +32,11 @@ Keyboard Shortcuts:
   Ctrl+H   - Show help`;
 
 export default function TerminalPage() {
+  const { user, isLoading } = useFarcasterUser();
+  const { currentUser } = useUserContext();
+  const [terminalRef, setTerminalRef] = useState<any>(null);
+  const [commands, setCommands] = useState<any[]>([]);
+
   const addCommand = useCallback((cmd: any) => {
     // This is now handled by TerminalUI internally
   }, []);
@@ -91,12 +98,24 @@ export default function TerminalPage() {
     }
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen bg-gray-950 text-white font-mono flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-cyan-400 text-lg mb-4">Loading Mini App...</div>
+          <div className="text-gray-400 text-sm">Initializing user session</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-screen">
       <TerminalUI
         title="ONCHAIN-PA-SESSION"
         version="v1.0.4"
         onCommand={handleCommand}
+        currentUser={currentUser}
       />
     </div>
   );
