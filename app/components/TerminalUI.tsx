@@ -208,7 +208,7 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
                   </div>
                 )}
               </>
-            )}}
+            )}
           </div>
         ))}
         <div ref={terminalEndRef} />
