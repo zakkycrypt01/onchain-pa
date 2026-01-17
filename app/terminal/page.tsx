@@ -8,6 +8,8 @@ import { useFarcasterUser } from "@/app/hooks/useFarcasterUser";
 import { useUserContext } from "@/app/providers/UserContext";
 import { useTransactionSigning } from "@/app/hooks/useTransactionSigning";
 import { parseTransactionFromResponse, extractTransactionHash } from "@/app/utils/transaction-utils";
+import { useAuthenticatedUser } from "@/app/hooks/useAuthenticatedUser";
+import { useRouter } from "next/navigation";
 
 const HELP_TEXT = `Available Commands:
   bal      - Check wallet balance
@@ -34,11 +36,19 @@ Keyboard Shortcuts:
   Ctrl+H   - Show help`;
 
 export default function TerminalPage() {
-  const { user, isLoading, walletAddress } = useFarcasterUser();
+  const router = useRouter();
+  const { user, isLoading, disconnect } = useAuthenticatedUser();
   const { currentUser } = useUserContext();
   const { signTransaction } = useTransactionSigning();
   const [terminalRef, setTerminalRef] = useState<any>(null);
   const [commands, setCommands] = useState<any[]>([]);
+
+  // Redirect to landing if not authenticated
+  React.useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/landing");
+    }
+  }, [user, isLoading, router]);
 
   const addCommand = useCallback((cmd: any) => {
     // This is now handled by TerminalUI internally
@@ -106,7 +116,7 @@ export default function TerminalPage() {
             data: parsedTx.data,
             type: parsedTx.type,
             description: parsedTx.description,
-            userWalletAddress: walletAddress,
+            userWalletAddress: user?.walletAddress,
             userMessage: input,
           });
 
@@ -150,13 +160,13 @@ export default function TerminalPage() {
         response: errorMessage,
       };
     }
-  }, [walletAddress, signTransaction]);
+  }, [user?.walletAddress, signTransaction]);
 
   if (isLoading) {
     return (
       <div className="w-full h-screen bg-gray-950 text-white font-mono flex items-center justify-center">
         <div className="text-center">
-          <div className="text-cyan-400 text-lg mb-4">Loading Mini App...</div>
+          <div className="text-cyan-400 text-lg mb-4">Loading...</div>
           <div className="text-gray-400 text-sm">Initializing user session</div>
         </div>
       </div>
