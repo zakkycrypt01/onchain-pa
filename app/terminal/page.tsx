@@ -39,17 +39,20 @@ export default function TerminalPage() {
     setCommands((prev) => [...prev, cmd]);
   }, []);
 
-  const handleCommand = useCallback(async (command: string) => {
+  const handleCommand = useCallback(async (input: string): Promise<{ success: boolean; response: string; details?: string[] }> => {
     // Expand command aliases
-    const expandedCommand = parseCommandInput(command);
+    const expandedCommand = parseCommandInput(input);
     const baseCommand = expandedCommand.split(/\s+/)[0].toLowerCase();
 
-    // Handle local commands
+    // Handle help command locally
     if (baseCommand === "help") {
-      addCommand(TerminalManager.createCommandOutput(HELP_TEXT.trim()));
-      return;
+      return {
+        success: true,
+        response: HELP_TEXT.trim(),
+      };
     }
 
+    // Handle clear command locally
     if (baseCommand === "clear") {
       setCommands([
         {
@@ -58,11 +61,14 @@ export default function TerminalPage() {
           content: "ONCHAIN-PA-SESSION --v1.0.4",
         },
       ]);
-      return;
+      return {
+        success: true,
+        response: "Terminal cleared",
+      };
     }
 
     try {
-      // Send to agent API
+      // Send to agent API - both commands and natural language queries
       const response = await fetch("/api/agent", {
         method: "POST",
         headers: {
@@ -75,18 +81,33 @@ export default function TerminalPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to process command");
+        return {
+          success: false,
+          response: errorData.error || "Failed to process command",
+        };
       }
 
       const data = await response.json();
       console.log("Agent response:", data);
 
-      // Display success
+      // Extract response text from agent
+      const responseText = data.response || data.message || "Command executed";
+      const details = data.details ? Object.entries(data.details).map(([k, v]) => `${k}: ${v}`) : undefined;
+
+      return {
+        success: true,
+        response: responseText,
+        details,
+      };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Command error:", error);
-      throw error;
+      return {
+        success: false,
+        response: errorMessage,
+      };
     }
-  }, [addCommand]);
+  }, [setCommands]);
 
   return (
     <div className="w-full h-screen">
