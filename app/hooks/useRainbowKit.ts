@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount, useClient } from "wagmi";
 
 /**
  * Hook to use RainbowKit wallet connection
@@ -8,12 +8,12 @@ import { useAccount, useWalletClient } from "wagmi";
  */
 export function useRainbowKit() {
   const { address, isConnected } = useAccount();
-  const { data: walletClient } = useWalletClient();
+  const client = useClient();
 
   return {
     address,
     isConnected,
-    walletClient,
+    client,
   };
 }
 

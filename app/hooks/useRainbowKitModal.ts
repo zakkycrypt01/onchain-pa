@@ -6,7 +6,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
  * Hook to open the RainbowKit modal
  */
 export function useRainbowKitModal() {
-  const { openConnectModal } = useConnectModal();
+  const { openConnectModal } = useConnectModal() || {};
 
   return {
     openModal: openConnectModal,
