@@ -15,6 +15,7 @@ interface TerminalUIProps {
   version?: string;
   onCommand?: (command: string) => Promise<{ success: boolean; response: string; details?: string[] }>;
   currentUser?: { userId: string; username?: string; displayName?: string; pfpUrl?: string } | null;
+  onDisconnect?: () => void;
 }
 
 export const TerminalUI: React.FC<TerminalUIProps> = ({
@@ -22,6 +23,7 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
   version = "v1.0.4",
   onCommand,
   currentUser,
+  onDisconnect,
 }) => {
   const { theme } = useThemeCustomization();
   const [commands, setCommands] = useState<TerminalCommand[]>([
@@ -207,12 +209,21 @@ export const TerminalUI: React.FC<TerminalUIProps> = ({
                   {currentUser.displayName || currentUser.username || `User #${currentUser.userId}`}
                 </span>
               </div>
-              {currentUser.walletAddress && (
-                <span style={{ color: theme.successColor }} className="text-xs font-mono truncate max-w-xs opacity-80">
-                  {currentUser.walletAddress.slice(0, 6)}...{currentUser.walletAddress.slice(-4)}
-                </span>
-              )}
             </div>
+          )}
+          {currentUser && onDisconnect && (
+            <button
+              onClick={onDisconnect}
+              style={{ 
+                color: theme.dangerColor, 
+                borderColor: `${theme.dangerColor}80`,
+                backgroundColor: `${theme.dangerColor}20`
+              }}
+              className="px-3 py-1 text-xs rounded hover:opacity-80 transition-opacity border"
+              title="Disconnect Wallet"
+            >
+              🔌 Disconnect
+            </button>
           )}
           <Link
             href="/settings"
