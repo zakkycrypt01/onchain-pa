@@ -28,15 +28,15 @@ export function useWalletSession(): {
   const [selectedProvider, setSelectedProvider] = useState<WalletProvider>("none");
 
   useEffect(() => {
-    // Priority: Farcaster > Reown > None
+    // Priority: Farcaster > RainbowKit > None
     if (farcasterAddress && farcasterUser) {
       setSelectedProvider("farcaster");
-    } else if (reownAddress && reownConnected) {
-      setSelectedProvider("reown");
+    } else if (rainbowkitAddress && rainbowkitConnected) {
+      setSelectedProvider("rainbowkit");
     } else {
       setSelectedProvider("none");
     }
-  }, [farcasterAddress, farcasterUser, reownAddress, reownConnected]);
+  }, [farcasterAddress, farcasterUser, rainbowkitAddress, rainbowkitConnected]);
 
   let session: WalletSession | null = null;
 
