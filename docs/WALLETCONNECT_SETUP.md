@@ -357,3 +357,11 @@ For issues with this integration:
 - Check this file for setup instructions
 - Review the component code in `app/providers/ReownWalletProvider.tsx`
 - Check browser console for error messages
+
+---
+
+## ⚠️ Deprecated: See RAINBOWKIT_SETUP.md for Current Implementation
+
+This document describes the legacy Reown/AppKit integration. The project has been migrated to RainbowKit.
+Please refer to `RAINBOWKIT_SETUP.md` for the current wallet integration.
+
