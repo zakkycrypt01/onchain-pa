@@ -12,6 +12,6 @@ import { WagmiProvider } from "wagmi";
 // This file will contain the RainbowKit wallet provider setup
 // Migration from Reown/AppKit to RainbowKit
 
-export const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
+const queryClient = new QueryClient();
   return <>{children}</>;
 };
