@@ -13,5 +13,14 @@ import { WagmiProvider } from "wagmi";
 // Migration from Reown/AppKit to RainbowKit
 
 const queryClient = new QueryClient();
+
+const config = getDefaultConfig({
+  appName: "Onchain PA",
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "",
+  chains: [base, baseSepolia],
+  ssr: false, // NextJS SSR not supported for wallet connections
+});
+
+export const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
