@@ -14,7 +14,7 @@ interface WalletSession {
 
 /**
  * Unified hook for detecting and managing wallet connections
- * Supports both Farcaster Mini App and WalletConnect/Reown
+ * Supports both Farcaster Mini App and RainbowKit
  */
 export function useWalletSession(): {
   session: WalletSession | null;
