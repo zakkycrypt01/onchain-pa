@@ -3,7 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import MiniAppProvider from "./components/MiniAppProvider";
 import { UserProvider } from "./providers/UserContext";
-import { ReownWalletProvider } from "./providers/ReownWalletProvider";
+import { RainbowKitProvider } from "./providers/RainbowKitProvider";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
