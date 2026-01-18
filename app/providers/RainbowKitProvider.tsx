@@ -3,7 +3,7 @@
 import React, { ReactNode, useMemo } from "react";
 import { RainbowKitProvider as RainbowKitProviderComponent } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiConfig } from "wagmi";
+import { WagmiProvider } from "wagmi";
 import { createRainbowKitConfig } from "@/app/lib/rainbowkit-config";
 
 // This file contains the RainbowKit wallet provider setup
@@ -22,13 +22,13 @@ export const RainbowKitProvider: React.FC<RainbowKitProviderProps> = ({ children
   const queryClient = useMemo(() => new QueryClient(), []);
 
   return (
-    <WagmiConfig config={config}>
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProviderComponent>
           {children}
         </RainbowKitProviderComponent>
       </QueryClientProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   );
 };
 
