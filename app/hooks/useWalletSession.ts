@@ -82,7 +82,7 @@ export function useWalletProviderInfo() {
   return {
     provider,
     isFarcaster: provider === "farcaster",
-    isReown: provider === "reown",
+    isRainbowKit: provider === "rainbowkit",
     address: session?.address || null,
     displayName: session?.displayName || null,
     fid: (session as any)?.fid || null,
