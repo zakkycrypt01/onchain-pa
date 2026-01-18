@@ -40,3 +40,5 @@ export const RainbowKitProvider: React.FC<RainbowKitProviderProps> = ({ children
     </WagmiProvider>
   );
 };
+
+export default RainbowKitProvider;
