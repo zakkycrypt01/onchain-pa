@@ -22,5 +22,13 @@ const config = getDefaultConfig({
 });
 
 export const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>;
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProviderComponent>
+          {children}
+        </RainbowKitProviderComponent>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
 };
