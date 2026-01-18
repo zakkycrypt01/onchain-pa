@@ -24,7 +24,7 @@ export function useWalletSession(): {
   switchProvider: (provider: WalletProvider) => void;
 } {
   const { user: farcasterUser, isLoading: farcasterLoading, walletAddress: farcasterAddress } = useFarcasterUser();
-  const { address: reownAddress, isConnected: reownConnected } = useReownWallet();
+  const { address: rainbowkitAddress, isConnected: rainbowkitConnected } = useRainbowKit();
   const [selectedProvider, setSelectedProvider] = useState<WalletProvider>("none");
 
   useEffect(() => {
