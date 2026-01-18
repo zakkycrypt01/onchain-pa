@@ -46,13 +46,13 @@ export default function RootLayout({
       <body
         className={`${jetbrainsMono.variable} font-mono bg-black text-green-500 min-h-screen flex flex-col antialiased selection:bg-green-500 selection:text-black`}
       >
-        <ReownWalletProvider>
+        <RainbowKitProvider>
           <UserProvider>
             <MiniAppProvider>
               {children}
             </MiniAppProvider>
           </UserProvider>
-        </ReownWalletProvider>
+        </RainbowKitProvider>
       </body>
     </html>
   );
