@@ -30,8 +30,8 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.0.0",
-    "viem": "^2.21.1",
-    "wagmi": "^2.19.5"
+    "viem": "^1.21.4",
+    "wagmi": "^1.4.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
