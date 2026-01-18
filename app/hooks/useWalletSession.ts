@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useFarcasterUser } from "@/app/hooks/useFarcasterUser";
-import { useReownWallet } from "@/app/providers/ReownWalletProvider";
+import { useRainbowKit } from "@/app/hooks/useRainbowKit";
 
-export type WalletProvider = "farcaster" | "reown" | "none";
+export type WalletProvider = "farcaster" | "rainbowkit" | "none";
 
 interface WalletSession {
   address: string;
