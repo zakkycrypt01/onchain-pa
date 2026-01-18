@@ -25,7 +25,11 @@ const config = getDefaultConfig({
   ssr: false, // NextJS SSR not supported for wallet connections
 });
 
-export const RainbowKitProvider = ({ children }: { children: React.ReactNode }) => {
+/**
+ * RainbowKit Wallet Provider - enables multi-chain wallet connections
+ * Wraps children with Wagmi and RainbowKit providers
+ */
+export const RainbowKitProvider: React.FC<RainbowKitProviderProps> = ({ children }) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
