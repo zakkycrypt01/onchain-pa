@@ -9,8 +9,12 @@ import { base, baseSepolia } from "@wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 
-// This file will contain the RainbowKit wallet provider setup
+// This file contains the RainbowKit wallet provider setup
 // Migration from Reown/AppKit to RainbowKit
+
+interface RainbowKitProviderProps {
+  children: React.ReactNode;
+}
 
 const queryClient = new QueryClient();
 
