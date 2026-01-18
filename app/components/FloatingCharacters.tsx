@@ -37,15 +37,10 @@ export default function FloatingCharacters({
         generated.push({
           char: pick(),
           style: {
-            // @ts-expect-error CSS var properties
             "--x": `${left}%`,
-            // @ts-expect-error CSS var properties
             "--dur": dur,
-            // @ts-expect-error CSS var properties
             "--delay": delay,
-            // @ts-expect-error CSS var properties
             "--opacity": opacity,
-            // @ts-expect-error CSS var properties
             "--x-offset": "0px",
             fontSize: "13px",
           } as React.CSSProperties,
