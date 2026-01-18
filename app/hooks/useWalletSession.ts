@@ -48,11 +48,11 @@ export function useWalletSession(): {
       fid: farcasterUser.fid,
       username: farcasterUser.username,
     };
-  } else if (selectedProvider === "reown" && reownAddress) {
+  } else if (selectedProvider === "rainbowkit" && rainbowkitAddress) {
     session = {
-      address: reownAddress,
-      displayName: `${reownAddress.slice(0, 6)}...${reownAddress.slice(-4)}`,
-      provider: "reown",
+      address: rainbowkitAddress,
+      displayName: `${rainbowkitAddress.slice(0, 6)}...${rainbowkitAddress.slice(-4)}`,
+      provider: "rainbowkit",
     };
   }
 
